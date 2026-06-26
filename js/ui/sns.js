@@ -9,6 +9,9 @@ window.renderSnsApp = function(config){
     meta: 'Skyline Horizon 现场记录'
   }, config.user || {});
   const view = config.view || 'feed';
+  const shortContent =
+    (view === 'thread' && (config.messages || []).length <= 2 && !config.actions && !config.secondaryAction) ||
+    (view === 'profile' && !(config.profileAction));
   const activeTab = config.activeTab || (view === 'messages' || view === 'thread' ? 'messages' : (view === 'profile' ? 'profile' : 'home'));
   const titleMap = {
     compose: '发微博',
@@ -218,6 +221,7 @@ window.renderSnsApp = function(config){
   };
 
   root.classList.add('sns-phone', 'phone-shell');
+  root.classList.toggle('phone-short', !!shortContent);
   root.innerHTML = (renderers[view] || feedHTML)();
 
   const actions = {};

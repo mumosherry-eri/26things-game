@@ -18,6 +18,7 @@ window.renderPhoneChat = function(config){
   const messages = config.messages || [];
   let index = 0;
   let done = false;
+  root.classList.toggle('phone-short', messages.length <= 2);
 
   root.innerHTML = `
     <div class="phone-status"><span>23:46</span><span>5G  72%</span></div>

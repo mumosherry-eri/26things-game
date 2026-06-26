@@ -1584,3 +1584,181 @@ html, body { margin: 0; overflow-x: hidden; }
     padding: 14px 10px 22px;
   }
 }
+
+/* === 入口页、目录与手机界面稳定布局覆盖 === */
+.landing-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.landing-action-primary {
+  grid-column: 1 / -1;
+  min-height: 48px;
+  font-size: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 138, 80, .96), rgba(134, 89, 255, .9)),
+    linear-gradient(135deg, rgba(106, 73, 230, .92), rgba(36, 179, 205, .76));
+}
+
+.phone-shell {
+  width: min(390px, 100%);
+  height: clamp(520px, 72svh, 680px);
+  max-height: 680px;
+  min-height: 0;
+}
+
+.sns-phone.phone-shell,
+.caleb-sns.phone-shell,
+.phone-shell.yizhou-phone {
+  height: clamp(520px, 72svh, 680px);
+  max-height: 680px;
+  min-height: 0;
+}
+
+.phone-status,
+.phone-titlebar,
+.sns-topbar,
+.phone-typing,
+.phone-compose,
+.phone-action-row,
+.sns-bottom-nav {
+  flex: 0 0 auto;
+}
+
+.phone-chat,
+.sns-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.phone-short .phone-chat,
+.phone-short .sns-scroll {
+  justify-content: center;
+  align-content: center;
+}
+
+.ticket-app,
+.image-lightbox-inline {
+  box-sizing: border-box;
+  width: min(390px, 100%);
+  height: clamp(420px, 68svh, 580px);
+  max-height: 580px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ticket-result,
+.image-lightbox-inline .hairclip-card.large {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.ticket-result {
+  flex: 1;
+  display: grid;
+  align-content: center;
+}
+
+.navigate-card {
+  width: min(560px, calc(100vw - 28px));
+  max-height: min(760px, calc(100svh - 36px));
+  border: 1px solid rgba(255,255,255,.22);
+  background:
+    radial-gradient(circle at 82% 0%, rgba(255, 136, 77, .22), transparent 30%),
+    linear-gradient(180deg, rgba(24, 20, 34, .98), rgba(9, 8, 15, .98));
+  color: #fff;
+  box-shadow: 0 28px 80px rgba(0,0,0,.62), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+
+.navigate-body {
+  padding: 18px;
+  color: #f9f5ff;
+  font-size: 17px;
+}
+
+.navigate-hero {
+  border-color: rgba(255,255,255,.2);
+  background:
+    radial-gradient(circle at 82% 0%, rgba(255, 153, 92, .28), transparent 34%),
+    linear-gradient(135deg, rgba(111, 75, 255, .18), rgba(255,255,255,.08));
+}
+
+.navigate-title {
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(0,0,0,.42);
+}
+
+.navigate-meta,
+.navigate-note {
+  color: rgba(255,255,255,.82);
+}
+
+.navigate-cp {
+  color: #ffd7c1;
+  font-size: 15px;
+}
+
+.navigate-section-title {
+  color: #fff;
+  font-size: 16px;
+}
+
+.navigate-character,
+.navigate-chapter {
+  border-color: rgba(255,255,255,.22);
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.navigate-character:hover,
+.navigate-chapter:hover {
+  background: rgba(255,255,255,.16);
+  border-color: rgba(255, 215, 193, .5);
+}
+
+.navigate-character span,
+.navigate-chapter-state {
+  color: rgba(255,255,255,.78);
+}
+
+.navigate-chapter.locked {
+  opacity: .7;
+  background: rgba(255,255,255,.055);
+  color: rgba(255,255,255,.74);
+}
+
+.navigate-chapter-title {
+  color: inherit;
+  font-size: 17px;
+}
+
+@media (max-width: 640px) {
+  .landing-page {
+    min-height: calc(100svh - 120px);
+  }
+
+  .phone-shell,
+  .sns-phone.phone-shell,
+  .caleb-sns.phone-shell,
+  .phone-shell.yizhou-phone {
+    width: 100%;
+    height: clamp(500px, 70svh, 620px);
+    max-height: 620px;
+    margin: 10px auto;
+  }
+
+  .ticket-app,
+  .image-lightbox-inline {
+    width: 100%;
+    height: clamp(410px, 66svh, 560px);
+  }
+
+  .navigate-card {
+    width: calc(100vw - 24px);
+    max-height: calc(100svh - 28px);
+    border-radius: 22px;
+  }
+}
