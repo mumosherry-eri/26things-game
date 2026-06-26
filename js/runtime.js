@@ -324,7 +324,8 @@ function recordChapterProgress(passageName) {
     catalogState.chapterSnapshots[chapter.id] = {
       passage: chapter.entry,
       variables: cloneData(State.variables),
-      memoEntries: [...(window.memoEntries || [])]
+      memoEntries: [...(window.memoEntries || [])],
+      phoneArchive: window.getPhoneArchiveSave ? window.getPhoneArchiveSave() : {}
     };
   }
 }
@@ -344,6 +345,7 @@ function restoreCatalogChapter(chapterId) {
   const snapshot = catalogState.chapterSnapshots[chapterId] || chapter.defaults || { variables: {}, memoEntries: [] };
   State.variables = cloneData(snapshot.variables);
   window.memoEntries = [...(snapshot.memoEntries || [])];
+  if (window.setPhoneArchiveData) window.setPhoneArchiveData(snapshot.phoneArchive || window.getPhoneArchiveSave?.() || {});
   State.history = [];
   window.closeNavigate();
   Engine.play(chapter.entry, { replace: true, skipCatalogRecord: true });
@@ -383,6 +385,7 @@ window.Engine = {
     State.variables = {};
     State.history = [];
     window.memoEntries = [];
+    if (window.resetPhoneArchive) window.resetPhoneArchive();
     normalizeCatalogState({ passage: START_PASSAGE });
     this.play(START_PASSAGE, { replace: true });
   }
@@ -393,7 +396,8 @@ function saveGame() {
     passage: State.passage,
     variables: State.variables,
     memoEntries: window.memoEntries || [],
-    catalog: getCatalogSaveData()
+    catalog: getCatalogSaveData(),
+    phoneArchive: window.getPhoneArchiveSave ? window.getPhoneArchiveSave() : undefined
   }));
   showPhoneToast("已保存", "stat");
 }
@@ -407,6 +411,7 @@ function loadGame() {
   const save = JSON.parse(raw);
   State.variables = save.variables || {};
   window.memoEntries = save.memoEntries || [];
+  if (window.setPhoneArchiveData) window.setPhoneArchiveData(save.phoneArchive || {});
   normalizeCatalogState(save);
   Engine.play(save.passage || START_PASSAGE, { replace: true });
   showPhoneToast("已读取", "stat");

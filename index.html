@@ -19,6 +19,7 @@
       <button id="menu-restart" type="button">重新开始</button>
     </nav>
     <section id="story" aria-live="polite"><div id="passages"></div></section>
+    <button id="phone-archive-button" type="button" aria-label="打开手机记录">手机</button>
     <div id="stats-modal" class="stats-modal">
       <div class="stats-backdrop" onclick="closeStats()"></div>
       <div class="stats-card" role="dialog" aria-modal="true" aria-label="状态面板">
@@ -40,6 +41,12 @@
         <div id="navigate-body" class="navigate-body"></div>
       </div>
     </div>
+    <div id="phone-archive-modal" class="phone-archive-modal">
+      <div class="stats-backdrop" onclick="closePhoneArchive()"></div>
+      <div class="phone-archive-card" role="dialog" aria-modal="true" aria-label="手机记录">
+        <div id="phone-archive-body"></div>
+      </div>
+    </div>
   </main>
     <script src="js/story/00-start.js"></script>
     <script src="js/story/01-ambitious.js"></script>
@@ -48,6 +55,7 @@
     <script src="js/story/04-drown.js"></script>
     <script src="js/story/catalog.js"></script>
     <script src="js/runtime.js"></script>
+    <script src="js/ui/phone-archive.js"></script>
     <script src="js/ui/phone-chat.js"></script>
     <script src="js/ui/sns.js"></script>
     <script src="js/ui/effects.js"></script>

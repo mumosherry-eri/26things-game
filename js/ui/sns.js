@@ -223,6 +223,31 @@ window.renderSnsApp = function(config){
   root.classList.add('sns-phone', 'phone-shell');
   root.classList.toggle('phone-short', !!shortContent);
   root.innerHTML = (renderers[view] || feedHTML)();
+  const archiveTheme = root.classList.contains('yizhou-phone') ? 'yizhou-phone' : '';
+  if (view === 'thread' && window.unlockPhoneChatArchive) {
+    window.unlockPhoneChatArchive({
+      contact: config.contact || config.title || '私信',
+      title: config.title || config.contact || '私信',
+      messages: config.messages || [],
+      theme: archiveTheme
+    });
+    setTimeout(() => {
+      const messages = Array.from(root.querySelectorAll('.sns-thread .msg')).map(node => ({
+        who: node.classList.contains('right') ? 'right' : 'left',
+        text: node.textContent.trim()
+      })).filter(msg => msg.text);
+      if (messages.length) {
+        window.unlockPhoneChatArchive({
+          contact: config.contact || config.title || '私信',
+          title: config.title || config.contact || '私信',
+          messages,
+          theme: archiveTheme
+        });
+      }
+    }, 2600);
+  } else if (window.unlockPhoneSnsArchive) {
+    window.unlockPhoneSnsArchive(Object.assign({}, config, { theme: archiveTheme }));
+  }
 
   const actions = {};
   (config.actions || []).concat(config.primaryAction || [], config.secondaryAction || [], config.messageAction || [], config.profileAction || [], config.items || [])

@@ -73,6 +73,13 @@ window.renderPhoneChat = function(config){
   function finishChat(){
     if (done) return;
     done = true;
+    if (window.unlockPhoneChatArchive) {
+      window.unlockPhoneChatArchive({
+        contact,
+        messages,
+        theme: root.classList.contains('yizhou-phone') ? 'yizhou-phone' : ''
+      });
+    }
     if (config.completeText) {
       const note = document.createElement('div');
       note.className = 'phone-chapter-note';

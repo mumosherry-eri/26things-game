@@ -99,6 +99,15 @@ window.renderCalebMeetChat = function(config){
   }
 
   function finish(){
+    if (window.unlockPhoneChatArchive) {
+      window.unlockPhoneChatArchive({
+        contact: 'Caleb',
+        messages: [
+          { who: 'left', text: '你真的很想跟我见面吗？' },
+          { who: 'right', text: '真的真的。' }
+        ]
+      });
+    }
     const link = document.createElement('a');
     link.className = 'link-internal phone-continue';
     link.href = 'javascript:void(0)';
