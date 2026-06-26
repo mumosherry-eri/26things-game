@@ -50,7 +50,9 @@ window.renderPhoneChat = function(config){
   function appendMessage(msg){
     typing.classList.remove('show');
     const div = document.createElement('div');
-    div.className = 'msg ' + msg.who + (msg.text === '【二维码图片】' || msg.text === '【图片】' ? ' image-msg' : '');
+    const isQr = msg.text === '【二维码图片】';
+    const isImagePlaceholder = isQr || msg.text === '【图片】';
+    div.className = 'msg ' + msg.who + (isImagePlaceholder || msg.image ? ' image-msg' : '') + (isQr ? ' qr-image-msg has-real-image' : '') + (msg.image ? ' has-real-image' : '');
     if (msg.image) {
       const img = document.createElement('img');
       img.alt = msg.text || '';
@@ -62,6 +64,11 @@ window.renderPhoneChat = function(config){
         }
         div.textContent = msg.text || '【图片】';
       };
+      div.appendChild(img);
+    } else if (isQr) {
+      const img = document.createElement('img');
+      img.alt = '二维码图片';
+      img.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220"><rect width="220" height="220" rx="18" fill="#f4f6ff"/><rect x="24" y="24" width="48" height="48" fill="#10131d"/><rect x="36" y="36" width="24" height="24" fill="#f4f6ff"/><rect x="148" y="24" width="48" height="48" fill="#10131d"/><rect x="160" y="36" width="24" height="24" fill="#f4f6ff"/><rect x="24" y="148" width="48" height="48" fill="#10131d"/><rect x="36" y="160" width="24" height="24" fill="#f4f6ff"/><g fill="#10131d"><rect x="92" y="28" width="16" height="16"/><rect x="116" y="28" width="12" height="12"/><rect x="88" y="56" width="12" height="28"/><rect x="116" y="56" width="32" height="12"/><rect x="84" y="100" width="20" height="20"/><rect x="116" y="88" width="12" height="44"/><rect x="140" y="92" width="28" height="16"/><rect x="184" y="92" width="12" height="32"/><rect x="92" y="148" width="16" height="48"/><rect x="120" y="152" width="28" height="12"/><rect x="156" y="140" width="16" height="32"/><rect x="184" y="152" width="12" height="44"/><rect x="120" y="184" width="44" height="12"/></g><text x="110" y="121" text-anchor="middle" font-size="18" font-family="sans-serif" font-weight="700" fill="#10131d">二维码</text></svg>');
       div.appendChild(img);
     } else {
       div.textContent = msg.text;
