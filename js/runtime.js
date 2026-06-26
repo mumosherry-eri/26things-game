@@ -236,7 +236,7 @@ function processWiki(src, options = {}) {
               btn.insertAdjacentElement("afterend", span);
               enhanceLinks(span);
             }
-          }, { once: true });
+          });
         });
         i = match.end;
         continue;
