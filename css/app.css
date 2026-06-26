@@ -2315,6 +2315,140 @@ a.link-internal:hover,
   align-self: flex-end;
 }
 
+/* === v3: 底部功能列与外置继续 === */
+#game-shell {
+  padding-bottom: max(92px, calc(78px + env(safe-area-inset-bottom)));
+}
+
+.bottom-toolbar {
+  position: fixed;
+  left: 50%;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 10018;
+  width: min(460px, calc(100vw - 20px));
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: minmax(86px, auto) 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 7px;
+  box-sizing: border-box;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 26px;
+  background: rgba(10, 9, 16, .82);
+  backdrop-filter: blur(22px);
+  box-shadow: 0 18px 50px rgba(0,0,0,.38);
+}
+
+.toolbar-spacer {
+  min-width: 42px;
+}
+
+.toolbar-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.toolbar-button,
+.toolbar-continue {
+  min-width: 56px;
+  height: 44px;
+  display: grid;
+  grid-template-rows: 20px 14px;
+  place-items: center;
+  gap: 1px;
+  border: 0;
+  border-radius: 18px;
+  color: rgba(255,255,255,.92);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.toolbar-button {
+  background: rgba(255,255,255,.075);
+}
+
+.toolbar-button:hover {
+  background: rgba(255,255,255,.13);
+}
+
+.toolbar-continue {
+  min-width: 90px;
+  grid-template-columns: 20px auto;
+  grid-template-rows: 1fr;
+  gap: 4px;
+  padding: 0 13px;
+  background: linear-gradient(135deg, var(--accent-warm), var(--accent-violet));
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(154, 114, 255, .24);
+}
+
+.toolbar-continue.is-hidden,
+.toolbar-continue:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toolbar-icon {
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.toolbar-continue .toolbar-icon {
+  font-size: 22px;
+}
+
+a.link-internal.is-toolbar-proxied,
+.phone-complete-outside a.link-internal.is-toolbar-proxied {
+  display: none !important;
+}
+
+#phone-archive-button,
+#game-menu-button {
+  position: static;
+  left: auto;
+  right: auto;
+  top: auto;
+  bottom: auto;
+  width: auto;
+  height: 44px;
+  transform: none;
+  box-shadow: none;
+}
+
+#game-menu {
+  top: auto;
+  right: max(12px, calc(50% - min(230px, 50vw)));
+  bottom: calc(max(12px, env(safe-area-inset-bottom)) + 68px);
+}
+
+@media (max-width: 420px) {
+  .bottom-toolbar {
+    grid-template-columns: minmax(74px, auto) 1fr auto;
+    gap: 5px;
+    padding: 6px;
+  }
+
+  .toolbar-actions {
+    gap: 5px;
+  }
+
+  .toolbar-button {
+    min-width: 50px;
+  }
+
+  .toolbar-continue {
+    min-width: 78px;
+    padding: 0 10px;
+  }
+}
+
 .phone-shell .msg.qr-msg {
   width: 220px !important;
   height: 220px !important;

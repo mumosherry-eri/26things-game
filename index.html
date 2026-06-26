@@ -8,10 +8,8 @@
 </head>
 <body>
   <main id="game-shell">
-    <button id="game-menu-button" type="button" aria-label="打开菜单">☰</button>
     <nav id="game-menu" aria-label="游戏菜单">
       <button id="menu-back" type="button">返回上一段</button>
-      <button id="menu-navigate" type="button">Navigate</button>
       <button id="menu-stats" type="button">状态</button>
       <button id="menu-memo" type="button">记忆</button>
       <button id="menu-save" type="button">保存</button>
@@ -19,7 +17,23 @@
       <button id="menu-restart" type="button">重新开始</button>
     </nav>
     <section id="story" aria-live="polite"><div id="passages"></div></section>
-    <button id="phone-archive-button" type="button" aria-label="打开手机记录">手机</button>
+    <div id="bottom-toolbar" class="bottom-toolbar" aria-label="功能列">
+      <button id="toolbar-continue" class="toolbar-continue is-hidden" type="button" disabled>
+        <span class="toolbar-icon">›</span><span>继续</span>
+      </button>
+      <div class="toolbar-spacer" aria-hidden="true"></div>
+      <div class="toolbar-actions">
+        <button id="toolbar-navigate-button" class="toolbar-button" type="button" aria-label="打开章节目录">
+          <span class="toolbar-icon">目</span><span>目录</span>
+        </button>
+        <button id="phone-archive-button" class="toolbar-button" type="button" aria-label="打开手机记录">
+          <span class="toolbar-icon">机</span><span>手机</span>
+        </button>
+        <button id="game-menu-button" class="toolbar-button" type="button" aria-label="打开菜单">
+          <span class="toolbar-icon">☰</span><span>菜单</span>
+        </button>
+      </div>
+    </div>
     <div id="stats-modal" class="stats-modal">
       <div class="stats-backdrop" onclick="closeStats()"></div>
       <div class="stats-card" role="dialog" aria-modal="true" aria-label="状态面板">

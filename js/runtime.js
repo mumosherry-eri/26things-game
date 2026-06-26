@@ -200,6 +200,7 @@ function processWiki(src, options = {}) {
               enhanceLinks(el);
               runDeferred(sub.deferred);
             });
+            syncToolbarContinue();
           };
           deferred.push(fn);
         }
@@ -277,6 +278,41 @@ function enhanceLinks(root = document) {
     });
   });
 }
+
+const LINEAR_LINK_RE = /^(继续|继续.+|进入第一场演出|打开消息|回家|擦头发|第二场演出|关闭图片)$/;
+let toolbarContinueTarget = "";
+
+function getLinearContinueLinks(root = document) {
+  const passage = root.querySelector?.(".passage") || document.querySelector(".passage");
+  if (!passage) return [];
+  const links = Array.from(passage.querySelectorAll("a.link-internal[data-passage]")).filter(link => {
+    if (link.closest(".phone-shell .phone-action-row, .ticket-app, .choice-panel, .landing-page")) return false;
+    const text = link.textContent.trim();
+    return LINEAR_LINK_RE.test(text);
+  });
+  return links.length === 1 ? links : [];
+}
+
+function syncToolbarContinue() {
+  const button = document.getElementById("toolbar-continue");
+  if (!button) return;
+  const links = getLinearContinueLinks(document);
+  if (!links.length) {
+    toolbarContinueTarget = "";
+    button.disabled = true;
+    button.classList.add("is-hidden");
+    button.querySelector("span:last-child").textContent = "继续";
+    return;
+  }
+  const link = links[0];
+  toolbarContinueTarget = link.dataset.passage || "";
+  button.disabled = !toolbarContinueTarget;
+  button.classList.remove("is-hidden");
+  button.querySelector("span:last-child").textContent = link.textContent.trim() || "继续";
+  link.classList.add("is-toolbar-proxied");
+}
+
+window.syncToolbarContinue = syncToolbarContinue;
 
 function cloneData(value) {
   return structuredClone(value || {});
@@ -369,6 +405,7 @@ window.Engine = {
     runDeferred(result.deferred);
     emitStoryEvent("passagedisplay");
     emitStoryEvent("passageend");
+    syncToolbarContinue();
     window.scrollTo({ top: 0, behavior: "instant" });
   },
   back() {
@@ -492,8 +529,14 @@ document.addEventListener("click", ev => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("toolbar-continue").addEventListener("click", () => {
+    if (toolbarContinueTarget) Engine.play(toolbarContinueTarget);
+  });
+  document.getElementById("toolbar-navigate-button").addEventListener("click", () => {
+    toggleGameMenu(false);
+    openNavigate();
+  });
   document.getElementById("menu-back").addEventListener("click", () => { toggleGameMenu(false); Engine.back(); });
-  document.getElementById("menu-navigate").addEventListener("click", () => { toggleGameMenu(false); openNavigate(); });
   document.getElementById("menu-stats").addEventListener("click", () => { toggleGameMenu(false); openStats(); });
   document.getElementById("menu-memo").addEventListener("click", () => { toggleGameMenu(false); openMemo(); });
   document.getElementById("menu-save").addEventListener("click", () => { toggleGameMenu(false); saveGame(); });

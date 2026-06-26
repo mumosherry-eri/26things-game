@@ -117,6 +117,7 @@ window.renderCalebMeetChat = function(config){
     });
     complete.appendChild(link);
     complete.classList.add('show');
+    if (window.syncToolbarContinue) window.syncToolbarContinue();
   }
 
   setTimeout(function(){

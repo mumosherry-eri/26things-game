@@ -105,6 +105,7 @@ window.renderPhoneChat = function(config){
       complete.appendChild(link);
     }
     complete.classList.add('show');
+    if (window.syncToolbarContinue) window.syncToolbarContinue();
   }
 
   function step(){

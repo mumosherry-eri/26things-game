@@ -96,9 +96,12 @@ $(document).on(':passageend', ()=> window.updateStats());
 $(document).on(':passagedisplay', function () {
   const passage = document.querySelector('.passage');
   if (passage) {
-    const choiceLinks = Array.from(passage.querySelectorAll('a.link-internal')).filter(link =>
-      !link.closest('.phone-shell, .ticket-app, .phone-complete, .image-lightbox-inline')
+    const allInlineLinks = Array.from(passage.querySelectorAll('a.link-internal')).filter(link =>
+      !link.closest('.phone-shell, .ticket-app, .phone-complete, .image-lightbox-inline') &&
+      !link.classList.contains('is-toolbar-proxied')
     );
+    const linearCandidates = allInlineLinks.filter(link => /^(继续|继续.+|进入第一场演出|打开消息|回家|擦头发|第二场演出|关闭图片)$/.test(link.textContent.trim()));
+    const choiceLinks = linearCandidates.length === 1 && allInlineLinks.length === 1 ? [] : allInlineLinks;
     if (choiceLinks.length && !passage.querySelector('.choice-panel')) {
       const panel = document.createElement('div');
       panel.className = 'choice-panel';
