@@ -1,6 +1,6 @@
 window.STORY_START = "未命名片段";
 window.STORY_DATA = window.STORY_DATA || {};
 Object.assign(window.STORY_DATA, {
-  "未命名片段": "2025年9月制作\nCP：【夏以昼x你】\n夏以昼：地下乐团Skyline Horizon的鼓手，本职工作：？？？？\n你：普通社畜，最近受朋友邀请经常看各种乐团演出\n现代paro，没有Evol的世界\n[[开始故事->故事的开始]]",
+  "未命名片段": "<section class=\"landing-page\">\n  <h1 class=\"landing-title\">关于你的26个变数</h1>\n  <p class=\"landing-meta\">2025年9月制作 - by Eri</p>\n  <p class=\"landing-cp\">CP：【夏以昼x你】</p>\n  <div class=\"landing-characters\">\n    <details class=\"landing-character\">\n      <summary>夏以昼</summary>\n      <div>地下乐团Skyline Horizon的鼓手，本职工作：？？？？</div>\n    </details>\n    <details class=\"landing-character\">\n      <summary>你</summary>\n      <div>普通社畜，最近受朋友邀请经常看各种乐团演出</div>\n    </details>\n  </div>\n  <p class=\"landing-world\">现代paro，没有Evol的世界</p>\n  <div class=\"landing-actions\">\n    <button class=\"landing-action\" type=\"button\" onclick=\"openNavigate()\">目录</button>\n    <button class=\"landing-action\" type=\"button\" onclick=\"loadGame()\">读取存档</button>\n  </div>\n</section>",
   "故事的开始": "<<set $favorYizhou = 0>>\n<<set $favorCaleb = 0>>\n<<set $darkness = 0>>\n<<set $path = 0>> \n\n受朋友邀请，你第一次走进那家地下Live酒吧。\n是一个名为Skyline Horizon的地下乐队的演出。\n\n[[进入第一场演出->Ambitious_A1]]"
 });

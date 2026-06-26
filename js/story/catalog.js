@@ -2,7 +2,7 @@ window.CATALOG_CHAPTERS = [
   {
     id: "start",
     title: "开始",
-    entry: window.STORY_START,
+    entry: "故事的开始",
     matches: [window.STORY_START, "故事的开始"],
     defaults: { variables: {}, memoEntries: [] }
   },

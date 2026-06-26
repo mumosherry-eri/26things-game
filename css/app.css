@@ -48,11 +48,96 @@ body::before {
 
 .passage {
   animation: passageIn .42s ease both;
+  white-space: pre-wrap;
 }
 
 .passage p,
 .passage {
   letter-spacing: 0;
+}
+
+.phone-shell,
+.ticket-app,
+.image-lightbox-inline,
+.stats-modal,
+.memo-modal,
+.navigate-modal,
+.choice-panel,
+.landing-page {
+  white-space: normal;
+}
+
+.landing-page {
+  display: grid;
+  gap: 18px;
+  min-height: 58vh;
+  align-content: center;
+}
+
+.landing-title {
+  margin: 0;
+  font-size: clamp(30px, 8vw, 48px);
+  line-height: 1.12;
+  color: #fff;
+}
+
+.landing-meta,
+.landing-world {
+  color: rgba(255,255,255,.72);
+}
+
+.landing-cp {
+  color: #ffe2d0;
+  font-weight: 700;
+}
+
+.landing-characters {
+  display: grid;
+  gap: 10px;
+}
+
+.landing-character {
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px;
+  background: rgba(255,255,255,.07);
+  color: #f7f3ff;
+  overflow: hidden;
+}
+
+.landing-character summary {
+  padding: 12px 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.landing-character div {
+  padding: 0 14px 14px;
+  color: rgba(255,255,255,.74);
+  line-height: 1.6;
+}
+
+.landing-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.landing-action {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid rgba(185, 159, 255, .46);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(106, 73, 230, .92), rgba(36, 179, 205, .76));
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(56, 43, 157, .28);
+}
+
+.landing-action:hover {
+  background: linear-gradient(135deg, rgba(126, 89, 255, .98), rgba(47, 207, 230, .86));
 }
 
 @keyframes passageIn {
