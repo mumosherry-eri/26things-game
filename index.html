@@ -1,0 +1,2430 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>关于你的26个变数</title>
+  <style>
+html, body {
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(circle at 24% 12%, rgba(255, 159, 92, .42), transparent 30%),
+    radial-gradient(circle at 72% 18%, rgba(128, 63, 178, .42), transparent 34%),
+    radial-gradient(circle at 50% 58%, rgba(73, 28, 112, .46), transparent 42%),
+    linear-gradient(145deg, #2a0d25 0%, #5d2b68 42%, #c96f45 100%);
+  color: #f6f0ff;
+  font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(180deg, rgba(255,255,255,.03) 0, rgba(255,255,255,.03) 1px, transparent 1px, transparent 4px);
+  opacity: .16;
+  z-index: 0;
+}
+
+#story {
+  position: relative;
+  z-index: 1;
+}
+
+#passages {
+  box-sizing: border-box;
+  width: min(720px, calc(100vw - 28px));
+  margin: 22px auto 36px;
+  padding: 22px clamp(16px, 4vw, 34px);
+  min-height: 72vh;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(35, 20, 39, .94), rgba(18, 8, 24, .96)),
+    radial-gradient(circle at 18% 0%, rgba(238, 137, 78, .24), transparent 34%),
+    radial-gradient(circle at 72% 6%, rgba(150, 84, 210, .28), transparent 38%);
+  box-shadow: 0 26px 70px rgba(0,0,0,.48), inset 0 0 0 1px rgba(255,255,255,.05);
+  line-height: 1.85;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.passage {
+  animation: passageIn .42s ease both;
+}
+
+.passage p,
+.passage {
+  letter-spacing: 0;
+}
+
+@keyframes passageIn {
+  from { opacity: 0; transform: translateY(10px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+.choice-panel {
+  display: grid;
+  gap: 10px;
+  margin: 22px 0 4px;
+}
+
+a.link-internal {
+  display:inline-block;
+  margin:6px 0;
+  padding:10px 16px;
+  border:1px solid rgba(185, 159, 255, .46);
+  border-radius:14px;
+  background: linear-gradient(135deg, rgba(106, 73, 230, .92), rgba(36, 179, 205, .76));
+  color:#fff;
+  text-decoration:none;
+  box-shadow: 0 10px 26px rgba(56, 43, 157, .28);
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+a.link-internal:hover {
+  background: linear-gradient(135deg, rgba(126, 89, 255, .98), rgba(47, 207, 230, .86));
+  color:#fff;
+  border-color: rgba(255,255,255,.72);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(56, 43, 157, .38);
+}
+
+/* === 左侧常驻按钮 === */
+
+/* 状态按钮 */
+#stats-btn {
+  position: fixed;
+  left: 12px;
+  top: 40%;
+  transform: translateY(-50%);
+  writing-mode: horizontal-rl;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  padding: 10px 8px;
+  border-radius: 10px;
+  letter-spacing: .2em;
+  user-select: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,.15);
+  z-index: 9998;
+}
+#stats-btn:hover { background:#333; }
+
+/* 记忆按钮 */
+#memo-btn {
+  position: fixed;
+  left: 60px;       /* 稍微偏右，避免和状态按钮重叠 */
+  top: 40%;
+  transform: translateY(-50%);
+  writing-mode: horizontal-rl;
+  background: #444;
+  color: #fff;
+  cursor: pointer;
+  padding: 10px 8px;
+  border-radius: 10px;
+  letter-spacing: .2em;
+  user-select: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,.15);
+  z-index: 9998;
+}
+#memo-btn:hover { background:#666; }
+
+
+/* === 弹窗通用样式 === */
+.stats-modal, .memo-modal {
+  position:fixed; inset:0; display:none; z-index:9999;
+}
+.stats-modal.open, .memo-modal.open { display:block; }
+
+.stats-backdrop {
+  position:absolute; inset:0;
+  background: rgba(0,0,0,.4);
+  backdrop-filter: blur(2px);
+}
+
+.stats-card, .memo-card {
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width: min(520px, 92vw);
+  max-height: 80vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+  color:#000; /* 确保文字是黑色 */
+}
+
+/* 弹窗头部 */
+.stats-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 16px;
+  border-bottom:1px solid #f0f0f0;
+  font-weight:600;
+}
+.stats-close {
+  border:none;
+  background:transparent;
+  font-size:20px;
+  line-height:1;
+  cursor:pointer;
+  color:#666;
+  padding:4px;
+}
+.stats-close:hover { color:#000; }
+
+/* 弹窗正文 */
+.stats-body, .memo-body {
+  padding:14px 16px 18px;
+  line-height:1.6;
+  color:#000;
+}
+
+/* === 状态面板里的进度条 === */
+.stat-row { margin-bottom:14px; }
+.stat-label { font-weight:600; }
+.stat-val { float:right; color:#000; }
+.stat-meter {
+  clear:both;
+  margin-top:6px;
+  height:10px;
+  background:#eee;
+  border-radius:999px;
+  overflow:hidden;
+}
+.stat-meter span {
+  display:block;
+  height:100%;
+  width:0;
+  background: linear-gradient(#9fd3ff,#7bbcff);
+  transition: width .35s ease;
+}
+.stat-meter.dark span {
+  background: linear-gradient(#ffd1d1,#ff9e9e);
+}
+
+/* === 记忆面板里的条目 === */
+.memo-body .memo-entry {
+  margin-bottom: 12px;
+  padding:8px 10px;
+  border-left:4px solid #999;
+  background:#f9f9f9;
+  border-radius:4px;
+}
+
+/* 移动端适配 */
+@media (max-width:640px){
+  #stats-btn{ left:8px; }
+  #memo-btn{ left:50px; }
+  .stats-card, .memo-card{ width: min(480px, 94vw); }
+}
+
+/* 聊天手机框 */
+.phone {
+  width: 360px; max-width: 92vw; height: 600px;
+  margin: 20px auto; border: 2px solid #333; border-radius: 24px;
+  background: #f9f9f9; display:flex; flex-direction:column;
+  overflow:hidden; font-family: system-ui, sans-serif;
+}
+/* 顶栏 */
+.phone .titlebar {
+  background:#ededed; border-bottom:1px solid #ccc;
+  padding:10px; text-align:center; font-weight:bold;color:#000;
+}
+/* 聊天内容区 */
+.phone .chat { flex:1; padding:12px; display:flex; flex-direction:column; gap:4px; overflow-y:auto; }
+/* 气泡 */
+.msg {
+  max-width:70%; padding:8px 12px; border-radius:16px; line-height:1.4; font-size:14px;color:#000;margin:2px 0;
+}
+.msg.left { align-self:flex-start; background:#fff; border:1px solid #ddd; }
+.msg.right{ align-self:flex-end; background:#9fe8a9; }
+/* 底部按钮 */
+.chat-next { text-align:center; padding:12px; }
+.chat-next a.link-internal {
+  display:inline-block; padding:8px 16px; border-radius:6px;
+  background:#007aff; color:#fff; text-decoration:none;
+}
+.chat-next a.link-internal:hover { background:#005fcc; }
+
+/* === 手机互动增强 === */
+.phone-shell {
+  width: min(390px, 94vw);
+  height: min(680px, 78vh);
+  min-height: 560px;
+  margin: 18px auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 34px;
+  background:
+    linear-gradient(180deg, rgba(22, 24, 35, .98), rgba(7, 8, 14, .98)),
+    radial-gradient(circle at 50% 0%, rgba(108, 69, 220, .35), transparent 42%);
+  color: #f7f3ff;
+  box-shadow: 0 24px 70px rgba(0,0,0,.55), inset 0 0 0 8px rgba(0,0,0,.22);
+}
+
+.phone-shell.buzz {
+  animation: phoneBuzz .18s linear 2;
+}
+
+@keyframes phoneBuzz {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+.phone-status,
+.phone-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px;
+  color: rgba(255,255,255,.82);
+}
+
+.phone-status {
+  font-size: 12px;
+  padding-top: 10px;
+  padding-bottom: 6px;
+}
+
+.phone-titlebar {
+  border-bottom: 1px solid rgba(255,255,255,.09);
+  background: rgba(255,255,255,.04);
+  font-weight: 700;
+  min-height: 42px;
+}
+
+.phone-back {
+  font-size: 30px;
+  line-height: 1;
+  color: #a8e7ff;
+}
+
+.phone-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7effb2;
+  box-shadow: 0 0 14px rgba(126,255,178,.8);
+}
+
+.phone-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px 16px;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at 15% 18%, rgba(117, 70, 255, .14), transparent 22%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+}
+
+.phone-shell .msg {
+  max-width: 76%;
+  width: fit-content;
+  padding: 9px 12px;
+  border-radius: 16px;
+  line-height: 1.45;
+  font-size: 14px;
+  color: #f9f7ff;
+  margin: 0;
+  animation: bubbleIn .24s ease both;
+  word-break: break-word;
+}
+
+.phone-shell .msg.left {
+  align-self: flex-start;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.12);
+}
+
+.phone-shell .msg.right {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #7f5dff, #28c9dc);
+  box-shadow: 0 8px 20px rgba(38, 184, 218, .22);
+}
+
+.phone-shell .msg.image-msg {
+  min-width: 132px;
+  min-height: 132px;
+  display: grid;
+  place-items: center;
+  border-style: dashed;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.06)),
+    repeating-linear-gradient(45deg, rgba(255,255,255,.07) 0 8px, transparent 8px 16px);
+}
+
+.phone-shell .msg.image-msg img {
+  display: block;
+  max-width: min(220px, 70vw);
+  max-height: 220px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(10px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.phone-typing {
+  min-height: 22px;
+  padding: 0 18px 4px;
+  color: rgba(255,255,255,.58);
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.phone-typing.show {
+  opacity: 1;
+}
+
+.phone-typing.show::after {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  animation: typingDots 1s steps(4, end) infinite;
+}
+
+@keyframes typingDots {
+  0% { content: ""; }
+  25% { content: "."; }
+  50% { content: ".."; }
+  75%, 100% { content: "..."; }
+}
+
+.phone-compose {
+  display: none;
+  margin: 6px 16px 8px;
+  padding: 11px 14px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 18px;
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.92);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+}
+
+.phone-compose.show {
+  display: block;
+}
+
+.phone-compose::after {
+  content: "  发送";
+  float: right;
+  color: #8feaff;
+  font-weight: 700;
+}
+
+.phone-silence {
+  align-self: center;
+  margin: 10px 0;
+  color: rgba(255,255,255,.46);
+  font-size: 12px;
+}
+
+.phone-next {
+  margin: 4px 16px 14px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 16px;
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.phone-next:hover {
+  background: rgba(255,255,255,.18);
+}
+
+.phone-next.is-hidden {
+  display: none;
+}
+
+.phone-complete {
+  display: none;
+  padding: 0 16px 18px;
+  text-align: center;
+}
+
+.phone-complete.show {
+  display: block;
+}
+
+.phone-complete-outside {
+  margin: 12px auto 0;
+  padding: 0;
+  text-align: center;
+}
+
+.phone-complete-outside:not(:empty) {
+  display: block;
+}
+
+.phone-chapter-note {
+  margin-bottom: 10px;
+  color: rgba(255,255,255,.72);
+  font-size: 13px;
+}
+
+.phone-continue.link-internal {
+  margin: 0;
+}
+
+.phone-action-row {
+  padding: 10px 16px 16px;
+  text-align: center;
+}
+
+.phone-action-row a.link-internal {
+  margin: 6px 4px;
+}
+
+.phone-toast {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  z-index: 10000;
+  min-width: 180px;
+  max-width: min(360px, 86vw);
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 18px;
+  background: rgba(13, 15, 24, .92);
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 18px 42px rgba(0,0,0,.36);
+  opacity: 0;
+  transform: translate(-50%, -12px);
+  transition: opacity .24s ease, transform .24s ease;
+}
+
+.phone-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.phone-toast.memo {
+  border-color: rgba(178, 137, 255, .62);
+}
+
+.phone-toast.stat {
+  border-color: rgba(62, 220, 234, .62);
+}
+
+.ticket-app {
+  width: min(390px, 94vw);
+  margin: 22px auto;
+  padding: 16px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(20, 22, 35, .96), rgba(9, 10, 17, .96));
+  box-shadow: 0 20px 52px rgba(0,0,0,.4);
+}
+
+.ticket-head {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255,255,255,.8);
+  font-size: 13px;
+}
+
+.ticket-head strong {
+  color: #8feaff;
+  letter-spacing: 0;
+}
+
+.ticket-card {
+  margin: 14px 0;
+  padding: 18px;
+  border-radius: 20px;
+  background:
+    linear-gradient(135deg, rgba(121, 88, 255, .75), rgba(34, 201, 220, .55)),
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,.24), transparent 20%);
+  color: #fff;
+}
+
+.ticket-date {
+  font-size: 12px;
+  color: rgba(255,255,255,.72);
+}
+
+.ticket-title {
+  margin-top: 4px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.ticket-meta,
+.ticket-count {
+  color: rgba(255,255,255,.72);
+  font-size: 13px;
+}
+
+.ticket-result {
+  min-height: 74px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.07);
+}
+
+.ticket-app button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #7f5dff, #2ed5e6);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.ticket-loading {
+  animation: pulseText .8s ease infinite alternate;
+}
+
+.ticket-success {
+  color: #91ffbd;
+  font-weight: 800;
+}
+
+.ticket-fail {
+  color: #ffb1c3;
+  font-weight: 800;
+}
+
+@keyframes pulseText {
+  from { opacity: .55; }
+  to { opacity: 1; }
+}
+
+#stats-btn,
+#memo-btn {
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  background: rgba(12, 14, 24, .78);
+  backdrop-filter: blur(12px);
+  letter-spacing: 0;
+}
+
+#memo-btn {
+  left: 76px;
+}
+
+.stats-card,
+.memo-card {
+  border: 1px solid rgba(255,255,255,.14);
+  background: linear-gradient(180deg, #171927, #0d0f18);
+  color: #f7f3ff;
+}
+
+.stats-head,
+.stats-body,
+.memo-body,
+.stat-val {
+  color: #f7f3ff;
+}
+
+.stats-close {
+  color: rgba(255,255,255,.72);
+}
+
+.stat-meter {
+  background: rgba(255,255,255,.1);
+}
+
+.memo-body .memo-entry {
+  border-left-color: #8f6bff;
+  background: rgba(255,255,255,.08);
+}
+
+@media (max-width:640px){
+  html,
+  body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+  #story {
+    margin: 0 0 0 3.5em !important;
+    padding: 0 8px 24px;
+    width: calc(100% - 3.5em);
+    box-sizing: border-box;
+  }
+  #passages {
+    width: 100%;
+    max-width: none;
+    margin: 10px auto 28px;
+    padding: 14px 8px 22px;
+    min-height: auto;
+    border-radius: 18px;
+    font-size: 16px;
+    line-height: 1.82;
+  }
+  .passage {
+    max-width: 100%;
+  }
+  .passage p {
+    margin: 0 0 1em;
+  }
+  a.link-internal {
+    box-sizing: border-box;
+    max-width: 100%;
+    width: 100%;
+    text-align: center;
+    padding: 11px 14px;
+    white-space: normal;
+  }
+  .phone-shell {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-height: 520px;
+    height: 72vh;
+    margin: 10px auto;
+    border-radius: 24px;
+  }
+  .phone-status,
+  .phone-titlebar {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .phone-chat {
+    padding: 12px 10px;
+  }
+  .phone-shell .msg {
+    box-sizing: border-box;
+    max-width: 84%;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .phone-shell .msg.image-msg {
+    max-width: 84%;
+    min-width: 0;
+    min-height: 0;
+    padding: 8px;
+  }
+  .phone-shell .msg.image-msg img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 190px;
+    object-fit: contain;
+  }
+  .phone-compose {
+    box-sizing: border-box;
+    width: calc(100% - 24px);
+    margin: 6px 12px 8px;
+  }
+  .phone-action-row {
+    padding: 8px 10px 12px;
+  }
+  .phone-action-row a.link-internal,
+  .phone-complete-outside a.link-internal {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .ticket-app,
+  .image-lightbox-inline {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    margin: 10px auto;
+    padding: 12px;
+    border-radius: 22px;
+  }
+  .ticket-card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+  .ticket-result {
+    min-height: 0;
+    font-size: 15px;
+  }
+  .sns-phone.phone-shell,
+  .sns-app.phone-shell {
+    min-height: 560px;
+    height: 74vh;
+  }
+  .sns-scroll {
+    padding: 10px;
+  }
+  .sns-topbar {
+    grid-template-columns: 34px 1fr 34px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .sns-editor,
+  .sns-feed-card,
+  .sns-thread-card {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+  }
+  .sns-thread-card {
+    grid-template-columns: 32px 1fr auto;
+  }
+  .sns-bottom-nav {
+    padding: 9px 6px 12px;
+  }
+  .hairclip-card {
+    box-sizing: border-box;
+    width: min(210px, 82%);
+    padding: 14px;
+  }
+  .hairclip-card.large {
+    width: 100%;
+    min-height: 180px;
+  }
+  #stats-btn {
+    left: 8px;
+    top: auto;
+    bottom: 12px;
+    transform: none;
+  }
+  #memo-btn {
+    left: 68px;
+    top: auto;
+    bottom: 12px;
+    transform: none;
+  }
+}
+
+/* === 通用微博风格 SNS 模块 === */
+.sns-phone.phone-shell,
+.caleb-sns.phone-shell {
+  min-height: 560px;
+  background:
+    linear-gradient(180deg, rgba(12, 14, 24, .98), rgba(6, 8, 15, .98)),
+    radial-gradient(circle at 72% 0%, rgba(255, 129, 77, .16), transparent 34%);
+}
+
+.sns-topbar {
+  min-height: 46px;
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.035);
+  color: #fff;
+}
+
+.sns-topbar strong {
+  text-align: center;
+  font-size: 15px;
+}
+
+.sns-more {
+  text-align: right;
+  color: rgba(255,255,255,.55);
+  font-size: 13px;
+}
+
+.sns-top-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff7a45;
+  box-shadow: 0 0 16px rgba(255,122,69,.82);
+}
+
+.sns-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.sns-publish-page,
+.sns-message-list,
+.sns-feed {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.sns-profile-strip,
+.sns-post-head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.sns-profile-strip {
+  padding: 10px 4px 4px;
+}
+
+.sns-profile-strip.compact {
+  padding-bottom: 0;
+}
+
+.sns-avatar {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff8a50, #8f63ff);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(0,0,0,.24);
+}
+
+.sns-avatar.small {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}
+
+.sns-avatar.empty {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,.08), transparent 24%),
+    linear-gradient(135deg, #09090d, #000);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 10px 24px rgba(0,0,0,.24);
+}
+
+.sns-profile-name,
+.sns-name,
+.sns-thread-card strong {
+  color: #fff;
+  font-weight: 800;
+}
+
+.sns-profile-meta,
+.sns-time,
+.sns-thread-card em {
+  display: block;
+  margin-top: 2px;
+  color: rgba(255,255,255,.55);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.sns-editor,
+.sns-feed-card,
+.sns-thread-card {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 18px;
+  background: rgba(255,255,255,.075);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.025);
+}
+
+.sns-editor {
+  padding: 14px;
+}
+
+.sns-editor-text {
+  min-height: 116px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.sns-tool-row,
+.sns-actionbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: rgba(255,255,255,.52);
+  font-size: 12px;
+}
+
+.sns-tool-row {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.sns-feed-card {
+  padding: 13px;
+}
+
+.sns-author {
+  min-width: 0;
+}
+
+.sns-text {
+  margin-top: 10px;
+  color: rgba(255,255,255,.94);
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.sns-image-card,
+.drown-scene-card {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-top: 12px;
+  display: grid;
+  place-items: end start;
+  padding: 14px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.48)),
+    var(--sns-img),
+    radial-gradient(circle at 20% 20%, rgba(255, 139, 76, .36), transparent 26%),
+    radial-gradient(circle at 80% 35%, rgba(113, 77, 255, .3), transparent 32%),
+    linear-gradient(135deg, #222536, #0b0d15);
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  overflow: hidden;
+}
+
+.sns-image-card span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.42);
+  color: rgba(255,255,255,.9);
+  font-size: 12px;
+}
+
+.sns-repost {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 13px;
+  background: rgba(255,255,255,.075);
+  color: rgba(255,255,255,.72);
+  line-height: 1.55;
+}
+
+.sns-repost p {
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+}
+
+.sns-notice-pill {
+  justify-self: center;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(255, 130, 77, .18);
+  color: #ffd2bd;
+  font-size: 12px;
+}
+
+.sns-profile-page {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.sns-profile-hero {
+  display: grid;
+  grid-template-columns: 54px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 4px 6px;
+}
+
+.sns-profile-main {
+  min-width: 0;
+}
+
+.sns-profile-main strong,
+.sns-profile-main span {
+  display: block;
+}
+
+.sns-profile-main span {
+  margin-top: 3px;
+  color: rgba(255,255,255,.55);
+  font-size: 12px;
+}
+
+.sns-action.compact {
+  width: auto;
+  min-width: 76px;
+  padding: 9px 12px;
+}
+
+.sns-profile-bio,
+.sns-profile-stats,
+.sns-empty-state {
+  padding: 11px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.72);
+}
+
+.sns-profile-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.sns-empty-state {
+  min-height: 130px;
+  display: grid;
+  place-items: center;
+  color: rgba(255,255,255,.42);
+}
+
+.yizhou-phone.phone-shell,
+.phone-shell.yizhou-phone {
+  border-color: rgba(255, 151, 77, .34);
+  background:
+    linear-gradient(180deg, rgba(28, 17, 13, .98), rgba(7, 8, 13, .98)),
+    radial-gradient(circle at 70% 0%, rgba(255, 139, 76, .28), transparent 38%),
+    radial-gradient(circle at 8% 26%, rgba(128, 81, 255, .24), transparent 32%);
+  box-shadow: 0 24px 70px rgba(0,0,0,.55), inset 0 0 0 8px rgba(105, 44, 16, .28);
+}
+
+.drown-scene-card {
+  width: min(620px, 100%);
+  margin: 18px auto;
+  aspect-ratio: 16 / 8;
+}
+
+.drown-rehearsal-fallback {
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.56)),
+    var(--sns-img),
+    radial-gradient(circle at 18% 58%, rgba(255,255,255,.18), transparent 4%),
+    radial-gradient(circle at 42% 48%, rgba(40, 205, 220, .22), transparent 14%),
+    radial-gradient(circle at 76% 22%, rgba(255, 139, 76, .3), transparent 22%),
+    linear-gradient(135deg, #25263a, #080a12);
+}
+
+.drown-room-fallback {
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.62)),
+    var(--sns-img),
+    radial-gradient(circle at 26% 70%, rgba(255, 112, 70, .28), transparent 18%),
+    radial-gradient(circle at 72% 28%, rgba(121, 80, 255, .28), transparent 24%),
+    linear-gradient(135deg, #2a242b, #090a0f);
+}
+
+.sns-actionbar {
+  margin-top: 12px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.sns-thread-card {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sns-thread-card.unread {
+  background: linear-gradient(135deg, rgba(255, 127, 82, .18), rgba(143, 99, 255, .12));
+}
+
+.sns-thread-card span {
+  min-width: 0;
+}
+
+.sns-thread-card b {
+  min-width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #ff7a45;
+  color: #fff;
+  font-size: 12px;
+}
+
+.sns-action {
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ff824d, #8f63ff);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 26px rgba(0,0,0,.22);
+}
+
+.sns-action.primary {
+  margin-top: 2px;
+}
+
+.sns-inline-note {
+  padding: 10px 14px 0;
+  color: rgba(255,255,255,.78);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.sns-thread {
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255, 138, 80, .1), transparent 26%),
+    linear-gradient(180deg, rgba(12, 14, 24, .92), rgba(5, 7, 13, .98));
+}
+
+.sns-bottom-nav {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 8px 13px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.2);
+  color: rgba(255,255,255,.48);
+  font-size: 12px;
+}
+
+.sns-bottom-nav .active {
+  color: #fff;
+  font-weight: 800;
+}
+
+.phone-dot.unread {
+  background: #ff9f5c;
+  box-shadow: 0 0 16px rgba(255,159,92,.9);
+}
+
+.phone-dot.unread {
+  background: #ff9f5c;
+  box-shadow: 0 0 16px rgba(255,159,92,.9);
+}
+
+.hairclip-card {
+  width: min(220px, 72%);
+  min-height: 132px;
+  display: grid;
+  place-items: center;
+  align-self: flex-start;
+  margin: 8px 0;
+  padding: 18px;
+  border: 1px dashed rgba(255,255,255,.3);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255, 159, 92, .25), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,.13), rgba(255,255,255,.05));
+  color: #fff;
+  text-align: center;
+}
+
+.hairclip-card span {
+  display: block;
+  margin-top: 6px;
+  color: rgba(255,255,255,.58);
+  font-size: 12px;
+}
+
+.image-lightbox-inline {
+  width: min(420px, 94vw);
+  margin: 18px auto;
+  padding: 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(8, 10, 18, .84);
+  box-shadow: 0 24px 60px rgba(0,0,0,.38);
+}
+
+.hairclip-card.large {
+  width: 100%;
+  min-height: 220px;
+  margin: 0;
+}
+
+.caleb-eye-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: grid;
+  place-items: start center;
+  padding-top: 24vh;
+  pointer-events: none;
+  opacity: 0;
+  background: rgba(8, 5, 12, .08);
+  transition: opacity .08s linear;
+}
+
+.caleb-eye-flash.blackout {
+  place-items: center;
+  padding-top: 0;
+  background: #000;
+}
+
+.caleb-eye-flash.show {
+  opacity: 1;
+}
+
+.caleb-eye-flash.fade {
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.caleb-eye-flash img {
+  width: min(560px, 86vw);
+  aspect-ratio: 5 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 0 34px rgba(124, 74, 176, .28);
+  filter: contrast(1.05) saturate(.96);
+}
+
+.caleb-eye-flash.blackout img {
+  margin-top: -6vh;
+}
+
+@media (max-width: 640px) {
+  .sns-phone.phone-shell,
+  .phone-shell.yizhou-phone {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-height: 520px;
+    height: 72vh;
+  }
+
+  .sns-profile-hero {
+    grid-template-columns: 46px 1fr;
+  }
+
+  .sns-profile-hero .sns-action {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .sns-image-card {
+    border-radius: 13px;
+    padding: 10px;
+  }
+
+  .sns-profile-stats {
+    flex-wrap: wrap;
+  }
+
+  .drown-scene-card {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+html, body { margin: 0; overflow-x: hidden; }
+#ui-bar, #stats-btn, #memo-btn { display: none !important; }
+#game-shell { min-height: 100vh; }
+#passages { padding-right: clamp(18px, 8vw, 76px); }
+#game-menu-button {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top));
+  right: 14px;
+  z-index: 10020;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 50%;
+  background: rgba(11, 12, 20, .82);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.28);
+}
+#game-menu {
+  position: fixed;
+  top: calc(max(14px, env(safe-area-inset-top)) + 54px);
+  right: 14px;
+  z-index: 10019;
+  width: min(230px, calc(100vw - 28px));
+  display: none;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 20px;
+  background: rgba(14, 12, 22, .92);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 56px rgba(0,0,0,.42);
+}
+#game-menu.open { display: grid; gap: 8px; }
+#game-menu button {
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(255,255,255,.08);
+  color: #f7f1ff;
+  text-align: left;
+  cursor: pointer;
+}
+#game-menu button:hover { background: rgba(255,255,255,.15); }
+.runtime-button { cursor: pointer; }
+@media (max-width: 640px) {
+  #game-menu-button { right: 10px; }
+  #game-menu { right: 10px; }
+}
+  </style>
+</head>
+<body>
+  <main id="game-shell">
+    <button id="game-menu-button" type="button" aria-label="打开菜单">☰</button>
+    <nav id="game-menu" aria-label="游戏菜单">
+      <button id="menu-back" type="button">返回上一段</button>
+      <button id="menu-stats" type="button">状态</button>
+      <button id="menu-memo" type="button">记忆</button>
+      <button id="menu-save" type="button">保存</button>
+      <button id="menu-load" type="button">读取</button>
+      <button id="menu-restart" type="button">重新开始</button>
+    </nav>
+    <section id="story" aria-live="polite"><div id="passages"></div></section>
+    <div id="stats-modal" class="stats-modal">
+      <div class="stats-backdrop" onclick="closeStats()"></div>
+      <div class="stats-card" role="dialog" aria-modal="true" aria-label="状态面板">
+        <div class="stats-head"><span>状态面板</span><button class="stats-close" onclick="closeStats()" aria-label="关闭">×</button></div>
+        <div id="stats-body" class="stats-body"></div>
+      </div>
+    </div>
+    <div id="memo-modal" class="memo-modal">
+      <div class="stats-backdrop" onclick="closeMemo()"></div>
+      <div class="memo-card" role="dialog" aria-modal="true" aria-label="剧情记忆">
+        <div class="stats-head"><span>剧情记忆</span><button class="stats-close" onclick="closeMemo()" aria-label="关闭">×</button></div>
+        <div id="memo-body" class="memo-body"></div>
+      </div>
+    </div>
+  </main>
+  <script>
+window.STORY_START = "未命名片段";
+window.STORY_DATA = {"Ambitious_A1":"你站在台下，被角落里的帅气鼓手吸引。  \n手长脚长打起鼓来帅得毫不费力。他坐在鼓后，细长的手腕在镲片与鼓面之间精准地落下每一次击打，像是在和节拍较劲，又像是在驯服一头躁动的野兽。每一次抬手，鼓棒都在空中划出优雅的弧线，然后重重地落下去，敲击在鼓面上，也和上了你的心跳节奏。在每首曲子结束的时候，他会微微仰头，习惯性地在指尖转一圈鼓棒。\n\n[[继续->Ambitious_A2]]","Ambitious_A2":"灯光切换的瞬间，他的侧脸从阴影里浮现出来，鼻梁锋利，唇线薄而冷。明明隔得很远，你却真真切切地看到那双浓得化不开的紫色眼眸直直地望向你。一瞬间，你忘了呼吸，仿佛整个场内只有你和他两人对视的那条无声的线。  \n台上的夏以昼挑了挑眉，灯光再次翻转，他的轮廓又隐入黑暗之中。\n\n【你要怎么做？】  \n\n[[继续盯着夏以昼->Ambitious_A3]]","Ambitious_A3":"<<set $favorYizhou += 1>> \n演出还没结束，你已经知道自己会一次次来这里。因为舞台上的他，有一种张扬到近乎自负的野心，而你，刚好对这种锋芒毫无抵抗力。\n\n“看呆了？”拉你来的朋友推了推你。你晃过神来，她滔滔不绝：“那个主唱很帅吧？唱歌是不是也很好听？我就跟你说带你来看一次现场你一定会入坑。”\n\n主唱吗？你这才想起来看一眼舞台中央的主唱的脸，确实是中规中矩的帅哥，带着一点妖气的氛围。你在心里偷偷摇头，眼神重新落回那个被光隐着的角落。\n\n鼓点像暗潮一样重新席卷全场，夏以昼的手腕依旧精准灵活。你看着他的剪影出神，他似乎察觉到了你的注视，眼尾微微挑起，像是看向你的方向。\n\n【演出结束后，你要……】  \n- [[立即离开->Ambitious_Noconnect]]  \n- [[去吧台点一杯饮品等待朋友->Ambitious_Bar]]","Ambitious_Bar":"<<set $favorYizhou += 1>> \n演出结束后，空气里还留着酒精与汗水混合的热气。你在人潮中挤到吧台边喘了口气，朋友已经抛下你凑到台前去跟主唱套近乎聊天。你点了杯软饮，单手托着下巴看着侍应生在你面前调制。  \n眼神重新飘回舞台的时候，发现夏以昼已经不在了。你有些遗憾，还想多看几眼帅哥的。\n\n正出神时，背后被人轻轻撞了一下。你转过头，鼻梁撞上了人西装绑带的金属扣，你捂着鼻子抬起头——那双紫色的眼眸正满是担忧地看着你。\n<<run addMemo(\"第一次在吧台与夏以昼对视，那双紫色眼睛直直望向你。\")>>\n\n“抱歉，你还好吗？”他的声音意外地爽朗。  \n你赶紧摆手：“没事。我……很喜欢今晚的演出，尤其是你的鼓。”  \n他愣了一瞬，眼睛笑得眯起来，带着礼貌却真诚的笑意：“谢谢你。以后有空的话，也希望你能常来。”\n\n他从口袋掏出手机点了几下，把屏幕递向你——是 Skyline Horizon 的乐队账号页面。  \n“可以关注一下，这是我们的乐队账号。”\n\n【你的选择】  \n- [[关注->Ambitious_Follow]]  \n- [[示意了解，但先不关注->Ambitious_Home]]","Ambitious_Follow":"<<set $favorYizhou += 1>> \n你记下了id，在自己的社交平台上搜索并且点了关注。他把手机收回时，空气间残留着混合了酒精、汗水与皮革调香水的气息，像一条细细的线，把眼前的人和舞台那个遥远的身影系在了一起。\n<<run addMemo(\"演出时的夏以昼似乎用皮革调的香水。\")>>\n他很快被团员喊走，背影消失在人群中。\n- [[回家->Ambitious_Home]]","Ambitious_Home":"Skyline Horizon的演出结束了，朋友也不知道去哪浪，根本找不见人影，你有些累了。喝完杯子里最后一口，收拾好包走出酒吧。微凉的夜风把在店里的燥热吹得一干二净，耳中依旧嗡嗡作响。你慢悠悠走在街上，回味着夏以昼的模样与气息。\n\n上了地铁，你专心地看着乐队账号的每一条评论，还顺藤摸瓜找到了他们跟粉丝互动用的公开小号，也顺手点了个关注。刷着刷着，你停在一条夏以昼练习的视频——宽松的黑T恤、手腕翻飞的节奏感，让你忍不住在评论区敲下：“不是我说，人怎么能帅成这样啊？”\n\n评论发出去不到十秒，就有人点了个赞。你愣了愣，以为是其他路过的粉丝，没多想，继续往下翻着视频。\n\n直到地铁广播报站，你才抬起头。换乘的站台很空，脚步声在狭长的通道里回荡。你随手拿起手机，屏幕突然亮了——一条新的私信提示跳出来。\n\n<div id=\"ambitious-sns-home\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'ambitious-sns-home',\n  view: 'notifications',\n  title: '消息',\n  time: '23:18',\n  battery: '76%',\n  unread: true,\n  activeTab: 'messages',\n  items: [\n    {\n      action: 'open-caleb-first-dm',\n      title: 'Caleb',\n      preview: '你也喜欢夏以昼吗？',\n      badge: '1',\n      unread: true,\n      profile: { name: 'Caleb', avatar: 'C' },\n      goto: 'Chat_Caleb1'\n    }\n  ]\n})>><</done>>","Ambitious_Noconnect":"Skyline Horizon的演出结束了，朋友也不知道去哪浪，根本找不见人影，你有些累了。收拾好包走出酒吧。微凉的夜风把在店里的燥热吹得一干二净，耳中依旧嗡嗡作响。你慢悠悠走在街上，回味着夏以昼的模样与气息。\n\n上了地铁，你专心地看着乐队账号的每一条评论，还顺藤摸瓜找到了他们跟粉丝互动用的公开小号，也顺手点了个关注。刷着刷着，你停在一条夏以昼练习的视频——宽松的黑T恤、手腕翻飞的节奏感，让你忍不住在评论区敲下：“不是我说，人怎么能帅成这样啊？”\n\n评论发出去不到十秒，就有人点了个赞。你愣了愣，以为是其他路过的粉丝，没多想，继续往下翻着视频。\n\n直到地铁广播报站，你才抬起头。换乘的站台很空，脚步声在狭长的通道里回荡。你随手拿起手机，屏幕突然亮了——一条新的私信提示跳出来。\n\n<div id=\"ambitious-sns-noconnect\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'ambitious-sns-noconnect',\n  view: 'notifications',\n  title: '消息',\n  time: '23:18',\n  battery: '76%',\n  unread: true,\n  activeTab: 'messages',\n  items: [\n    {\n      action: 'open-caleb-first-dm',\n      title: 'Caleb',\n      preview: '你也喜欢夏以昼吗？',\n      badge: '1',\n      unread: true,\n      profile: { name: 'Caleb', avatar: 'C' },\n      goto: 'Chat_Caleb1'\n    }\n  ]\n})>><</done>>","Blur":"<<set $darkness += 5>>\n\n进了家门，你脱掉高跟鞋，揉了揉自己有些酸痛的小腿和脚踝。今晚的热闹好像还在皮肤下滚动，耳朵里的嗡鸣已经消散殆尽，身上缭绕的复杂味道在房间中开始弥散，你又想起夏以昼身上那股淡淡的皮革味。是你在其他人身上没有闻到过的香水。你思考了一会，向新好友发了消息：\n\n [[继续->Chat_Caleb2]]","Blur-A1":"你对夏以昼的迷恋很快变成了一种习惯。\n\n乐团小号的夏以昼练习视频也被你刷的包浆，通勤的时候耳机里是Skyline的音乐，比起主唱的声音，你会用耳朵去抓伴奏中的鼓点声，凭借着你可怜的一次现场演出经验去想象夏以昼打鼓的样子——手臂的弧度、汗水滑过额角、紫色眸子在灯光下的闪动。你已经想象了太多次，甚至觉得他的脸在脑海中变得模糊，像被烟雾笼罩的剪影，唯独那双眼睛始终清晰。\n\n很快，马上就是下一场live的抢票时间了\n\n<<if $draws is undefined>><<set $draws = 0>><</if>>\n<<if $wins  is undefined>><<set $wins  = 0>><</if>>\n\n<div class=\"ticket-app\">\n  <div class=\"ticket-head\">\n    <span>Skyline Horizon</span>\n    <strong>LIVE</strong>\n  </div>\n  <div class=\"ticket-card\">\n    <div class=\"ticket-date\">NEXT SHOW</div>\n    <div class=\"ticket-title\">第二场演出</div>\n    <div class=\"ticket-meta\">前排余票刷新中</div>\n  </div>\n  <div id=\"draw-result\" class=\"ticket-result\">点击下方按钮抽票（70% 概率）。</div>\n<<button \"开始抢票\">>\n\t<<set $draws += 1>>\n\t<<set _roll to random(1,100)>>\n\t<<replace \"#draw-result\">><div class=\"ticket-loading\">正在连接票务系统……</div><</replace>>\n\t<<if _roll <= 70>>\n\t\t<<set $wins += 1>>\n\t\t<<replace \"#draw-result\">>\n\t\t<div class=\"ticket-success\">✅ 恭喜抢到！（本次: <<= _roll >>）</div>\n\t\t<br><span class=\"ticket-count\">已抢 <<= $draws >> 次，抢到 <<= $wins >> 次。</span>\n\t\t<</replace>>\n\t\t<<replace \"#ticket-continue\">>[[继续->Blur-A2]]<</replace>>\n\t<<else>>\n\t\t<<replace \"#draw-result\">>\n\t\t<div class=\"ticket-fail\">❌ 没抢到（本次: <<= _roll >>）。再试一次？</div>\n\t\t<br><span class=\"ticket-count\">已抢 <<= $draws >> 次，抢到 <<= $wins >> 次。</span>\n\t\t<</replace>>\n\t<</if>>\n<</button>>\n</div>\n<div id=\"ticket-continue\" class=\"phone-complete phone-complete-outside\"></div>","Blur-A2":"<<set $favorCaleb += 5>>\n你跟Caleb关系变得热络了起来。虽然他的回复克制冷静，但是你总觉得他能精准地明白你的想法，还会给你分享一些其他人在网上也没说过的夏以昼的细节，比如他演出前喜欢喝加了柠檬汁的冰美式，喜欢在后台偷偷玩手机游戏。有了Caleb的细节补充，这些琐碎的小事像拼图碎片，夏以昼的形象不再只是你脑海中被烟雾蒙住的人形与视频中的侧影，渐渐拼凑成一个有血有肉的人。\n你在过去的练习视频中，好不容易截到了一张夏以昼打完鼓正面面对镜头的画面，有些模糊，但是紫色的眼睛清晰可见。你把这张截图设为了壁纸，对下一场演出抱有了无限的期待。\n[[第二场演出->Blur-A3]]","Blur-A3":"第二场演出如期而至。\n\n【出门前你选择】\n[[精心打扮->Blur-B1]]\n[[普通装扮->Blur-B2]]","Blur-B1":"<<set $favorYizhou += 2>> \n<<set $darkness += 1>>\n<<set $path = \"fancy\">> \n\n你鬼使神差地精心打扮了一番，在朴素的牛仔外套下穿了件性感的露背包臀裙，甚至喷了许久未用的香水。你站在第二排，视线牢牢锁在夏以昼身上。他的鼓点像心跳，敲在你胸口，每一下都带着炽热的节奏。\n\n[[继续->Blur-C1]]","Blur-B2":"<<set $path = \"casual\">>\n你站在第二排，视线牢牢锁在夏以昼身上。他的鼓点像心跳，敲在你胸口，每一下都带着炽热的节奏。\n[[继续->Blur-C1]]","Blur-C1":"灯光扫过舞台，他的紫色眸子在烟雾中时隐时现，你总觉得他的目光若有若无地飘向你，但是你又捕捉不到。你屏住呼吸，贪婪地用目光锁住夏以昼的每一个动作。演出结束，掌声如潮，你的心却还在鼓点里沉浮。\n乐队没有立刻离开，而是站在吧台一侧，看起了另一组乐队的表演。\n[[继续->Blur-C2]]","Blur-C2":"夏以昼站在队员们稍远的地方，背靠墙壁，手里拿着一瓶水，略显疏离。他的脸因为演出的汗水微微反着光，你并看不清他脸上的表情。\n\n【你选择】\n[[去吧台旁边点一杯饮料->Blur-D1]]\n[[回家->Blur-E1]]","Blur-D1":"<<set $favorYizhou += 2>> \n你在吧台的另一侧坐下，依照着习惯向酒保又要了一杯软饮，咬着吸管小口啜饮，目光却忍不住追随夏以昼。几个熟识的老粉走过去跟乐队成员打招呼，笑声和寒暄在空气中交织。\n\n\n你坐在远处，羡慕他们的轻松，却只敢远远地望着他们。台上的乐队表演结束，其他成员还在跟粉丝聊得热烈，夏以昼似乎跟其他队员说了什么，提前转身离开，背影消失在后台的暗门里。盯着那个方向，心底泛起一丝失落，既然他走了，你在这里继续待着也没什么意思。\n[[回家->Blur-E1]]","Blur-E1":"回到家，你迫不及待地打开手机，点开Caleb的对话框，激动地分享今晚的演出。\n\n[[继续->Chat_Caleb4]]","Blur-E2":"<<set $favorCaleb+= 2>> \n<<set $darkness += 1>>\n\n你盯着屏幕，试图从这行字里拼凑出Caleb的模样，可脑海里只有一片模糊。你也没多想，觉得大概是网友的心灵感应。你继续沉浸在今晚的迷幻快乐中，耳边仿佛还回荡着夏以昼的鼓点，皮肤下依然滚动着舞台的热浪。你把手机放在床上，准备洗漱。\n\n \n\n却没注意到对话框中，不断跳起的“正在输入中”。几秒后，提示消失，什么消息也没有，就像舞台灯光暗下后，留下的只有一片意味深长的沉寂。\n\n[[继续->Caleb-1]]","Blur_A1":"对方的对话框变成了正在输入中，却许久没有回信。你想大概是他误触了对话框吧，就把手机放在一边，走进浴室。氤氲的水汽随着热水的冲下而升腾，又让你想起舞台上迷幻的烟雾，夏以昼的轮廓在其中若隐若现，鼓棒翻飞，唯独那双紫色的眸子清晰可见。\n\n[[擦头发->Chat_Caleb3]]","Caleb-1":"<<run ensureCalebChapterState()>>\n算起来，这是你人生里第一次因为什么人这么着迷上头。过往也并不是没有恋爱经验，甜蜜的时刻也会在回忆中闪闪发亮，却和舞台上的人带来的感受完全不同。\n\n那不是日常里可以随时捕捉到的温柔，而是一种被迷幻泡泡包裹住的重磅炸弹，隔着舞台直直砸向你，炸得你心跳失序，世界模糊。\n\n[[继续->Caleb-2]]","Caleb-10":"<<run ensureCalebChapterState()>>\n你带着那枚重新买回来的小飞机发夹去了演出。\n\n酒吧里灯光依旧炽烈，空气里是啤酒、香水和汗水交织的味道。你刚站好位置，舞台灯便亮起，低音鼓像心跳般砸下来。\n\n<<if $liveHabit is \"frontrow\">>\n你下意识挤到熟悉的前排位置，发夹在发间稳稳地别着。离得近了，夏以昼眼尾的笑意、额角的汗意和鼓棒落下的力度都清晰得几乎烫人。\n<<elseif $liveHabit is \"side\">>\n你站在熟悉的侧边位置，看见他上台前低头调试耳返，指尖轻轻转过鼓棒，像往常一样朝观众席扫了一眼。\n<<elseif $liveHabit is \"replay\">>\n你脑中还残留着旧演出和练习视频的节奏，几乎在第三首歌开头响起时，就开始期待他会不会又换掉某个处理。\n<</if>>\n\n今天的夏以昼似乎格外卖力，情绪也很好。全程带着富有感染力的明媚的笑，MC的阶段甚至难得地在舞台中间跟大家讲了几句话。你几乎忘了眨眼，只顾追随着那双紫色的眼睛。\n\n[[继续->Caleb-11]]","Caleb-11":"<<run ensureCalebChapterState()>>\n你本想在间隙留意一下四周，看看能不能发现Caleb的影子，可下一秒，夏以昼在讲话后又立刻回到鼓后坐定，微微仰头，指尖转动着鼓棒，笑得明亮又轻松，像是发生了什么好事。\n\n<<if $liveHabit is \"frontrow\">>\n你看得见他指节收紧又放松，鼓棒在指间转过一圈，眼尾那点亮意比舞台灯还要抓人。\n<<elseif $liveHabit is \"side\">>\n你从侧边看见他重新坐回鼓后，像开场前那样漫不经心地转着鼓棒，视线从人群中轻轻掠过。\n<<elseif $liveHabit is \"replay\">>\n你甚至还在想第三首歌的solo和你反复刷过的版本到底差在哪里，可他的笑太明亮，把这个念头也一并冲散了。\n<</if>>\n\n你也不自觉地笑了起来，原本的念头被彻底冲淡。演出结束，夏以昼依旧照例在收拾鼓棒前向你挥了挥手。直到走出演出现场，你带着被夏以昼迷得晕晕乎乎的脑子摸出手机。手机的屏幕刚好亮起，是Caleb。\n\n[[打开消息->Caleb-12]]","Caleb-12":"<div id=\"chat-caleb12\" class=\"phone-shell\" data-contact=\"Caleb\"></div>\n<script>\nrenderPhoneChat({\n  id: \"chat-caleb12\",\n  messages: [\n    { who: \"left\", text: \"今天的演出开心吗？你有没有觉得第三首歌的solo和之前有点不一样？\" }\n  ],\n  nextText: \"继续\",\n  nextTarget: \"Caleb-13\"\n});\n<\/script>","Caleb-13":"你怔了几秒，才意识到——你又一次忘了找Caleb。\n\n下意识地，你抬手摸了摸头上的小飞机发夹。\n\n还好，发夹还在。\n\n[[继续->Drown-1]]","Drown-1":"<<run ensureDrownChapterState()>>\n“快看乐队官号，发了新活动！”\n\n午休时间，你本来在安安静静地吃饭，手机不停地震动，吸引了你的注意。拿起来一看，是Skyline Horizon的同好群在热烈地讨论着什么新活动。\n\n活动？自从你参加的第一场live，也过了近三个月，倒是没听说过他们有什么活动。你打开乐团的官方账号，发现十分钟前刚发了一条新帖子。\n\n[[继续->Drown-2]]","Drown-2":"<<run ensureDrownChapterState()>>\n<<set $drownOfficialSeen = true>>\n<div id=\"drown2-sns\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'drown2-sns',\n  view: 'feed',\n  title: 'Skyline Horizon',\n  time: '12:18',\n  battery: '64%',\n  activeTab: 'home',\n  user: { name: 'Skyline_Horizon_Official', avatar: 'SH', handle: '@SkylineHorizon', meta: 'Skyline Horizon 官方账号' },\n  posts: [\n    {\n      author: 'Skyline_Horizon_Official',\n      avatar: 'SH',\n      handle: '@SkylineHorizon',\n      time: '10分钟前',\n      source: '官方账号',\n      text: '🎁 转发抽奖 | 下一场演出《后台一日游》🎁\\n想看看我们后台的真实样子吗？\\n想挑一位成员陪你逛后台、讲讲舞台背后的秘密吗？\\n\\n机会来了——\\n奖品：1 位幸运观众 🎫 获得 后台全程参观 + 成员陪同讲解 + 合影签名\\n\\n参与方式：\\n🔹 关注 @SkylineHorizon\\n🔹 转推本条并@你最喜欢的乐队成员\\n\\n开奖时间：📅 xx月xx日 20:00\\n后台等你来玩。\\n\\n#SkylineHorizon #后台一日游 #LiveHouse',\n      reposts: 262,\n      comments: 89,\n      likes: 1108\n    }\n  ]\n})>><</done>>\n\n<div class=\"phone-complete phone-complete-outside\">[[继续->Drown-3]]</div>","Drown-3":"<<set $drownPracticePhotoViewed = true>>\n后台？你瞪大了眼睛。而且还可以选成员，那岂不是可以和夏以昼一起？\n\n还没来得及幻想，首页又跳出了乐团小号的帖子，是一张练习室的合照。夏以昼懒散地靠在鼓架后，难得露出全脸。你忍不住放大图片，盯着他的脸看了又看，嘴角忍不住露出笑意。\n\n他在对着镜头wink。\n\n<div id=\"drown3-sns\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'drown3-sns',\n  view: 'feed',\n  title: '首页',\n  time: '12:20',\n  battery: '63%',\n  user: { name: '你', avatar: '你', handle: '@live_notes', meta: 'Skyline Horizon 现场记录' },\n  posts: [\n    {\n      author: 'Skyline Horizon 小号',\n      avatar: 'SH',\n      handle: '@skyline_backstage',\n      time: '刚刚',\n      source: '练习室',\n      text: '练习结束。后天见。',\n      image: { title: '练习室合照', src: 'assets/drown-rehearsal-bg.jpg', fallbackClass: 'drown-rehearsal-fallback' },\n      reposts: 41,\n      comments: 26,\n      likes: 398\n    }\n  ]\n})>><</done>>\n\n你把相片保存，把夏以昼单独截了出来，看了又看，还是感觉十分喜欢。\n\n[[继续->Drown-4]]","Drown-4":"<div id=\"drown4-chat\" class=\"phone-shell\" data-contact=\"Caleb\"></div>\n<<done>><<run renderPhoneChat({\n  id: 'drown4-chat',\n  messages: [\n    { who: 'left', text: '新活动看到了吗？' },\n    { who: 'right', text: '！！！！！我看到了！！' },\n    { who: 'right', text: '我要转发！我要去后台见夏以昼555555' },\n    { who: 'right', text: '你怎么没转？' },\n    { who: 'left', text: '我一般都压点到，没什么时间。' },\n    { who: 'right', text: '那很好了，少一个人跟我抢夏以昼的名额。' },\n    { who: 'right', text: '黄豆搓手.jpg' },\n    { who: 'left', text: '等一下，夏以昼有号吗？' }\n  ],\n  nextText: '继续',\n  nextTarget: 'Drown-5'\n})>><</done>>","Drown-5":"乐队其他成员是有自己的账号的，没有做认证，因为粉丝不是那么多，更像个喜欢音乐的普通人的账号。你在刚开始迷上Skyline Horizon的时候，把每个成员从成团到现在的个人账号都翻了个底朝天，就为了看看有没有夏以昼的影子。但是夏以昼从来不露脸，偶尔有全脸出现也是视频扫过的一瞬间。\n\n你满心疑惑地点开乐团的官方账号，想确认是不是自己错过了什么，结果发现关注列表里赫然多了一个新账号。\n\n几乎同时，Caleb也发来了一个账户链接，你点开，就是乐团新增的关注账号。\n\n是夏以昼今天新开的账号。头像是一团黑，除了id是夏以昼，其余都是干干净净的。\n\n[[继续->Drown-6]]","Drown-6":"<<run ensureDrownChapterState()>>\n<<set $drownYizhouAccountSeen = true>>\n<div id=\"drown6-sns\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'drown6-sns',\n  view: 'profile',\n  title: '个人主页',\n  time: '12:24',\n  battery: '62%',\n  activeTab: 'profile',\n  profile: {\n    name: '夏以昼',\n    avatar: '',\n    handle: '@xia_yizhou',\n    meta: '今天加入',\n    bio: '',\n    stats: ['0 关注', '0 粉丝', '0 动态'],\n    emptyText: '还没有发布任何内容'\n  },\n  profileAction: State.variables.drownYizhouFollowed ? null : {\n    id: 'follow-yizhou',\n    label: '关注',\n    setVars: { drownYizhouFollowed: true, drownYizhouAccountSeen: true },\n    goto: 'Drown-7'\n  }\n})>><</done>>\n\n<<if $drownYizhouFollowed>>\n<div class=\"phone-complete phone-complete-outside\">[[继续->Drown-7]]</div>\n<</if>>","Drown-7":"<<run ensureDrownChapterState()>>\n<<if not $drownLotteryReposted>>\n<<set $drownYizhouFollowed = true>>\n<div id=\"drown7-sns\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'drown7-sns',\n  view: 'compose',\n  title: '转发',\n  time: '12:25',\n  battery: '62%',\n  activeTab: 'home',\n  user: { name: '你', avatar: '你', handle: '@live_notes', meta: 'Skyline Horizon 现场记录' },\n  composeText: '@夏以昼',\n  repostOf: {\n    author: 'Skyline_Horizon_Official',\n    avatar: 'SH',\n    text: '🎁 转发抽奖 | 下一场演出《后台一日游》🎁'\n  },\n  primaryAction: {\n    id: 'repost-lottery',\n    label: '转发',\n    setVars: { drownLotteryReposted: true },\n    goto: 'Drown-7'\n  }\n})>><</done>>\n<<elseif not $drownCalebJealousRead>>\n你立刻按下关注，然后转发了官方账号的活动帖子：@夏以昼。\n\n<div id=\"drown7-msg\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'drown7-msg',\n  view: 'feed',\n  title: '首页',\n  time: '12:26',\n  battery: '61%',\n  unread: true,\n  activeTab: 'messages',\n  user: { name: '你', avatar: '你', handle: '@live_notes', meta: 'Skyline Horizon 现场记录' },\n  posts: [\n    { author: '你', avatar: '你', text: '@夏以昼', repostOf: { author: 'Skyline_Horizon_Official', text: '🎁 转发抽奖 | 下一场演出《后台一日游》🎁' }, reposts: 0, comments: 0, likes: 2 }\n  ],\n  messageAction: {\n    id: 'open-drown-caleb-dm',\n    title: 'Caleb',\n    preview: '你对夏以昼会永远都这么主动吗？',\n    badge: '1',\n    profile: { name: 'Caleb', avatar: 'C' },\n    setVars: { drownCalebJealousRead: true },\n    goto: 'Drown-7'\n  }\n})>><</done>>\n<<else>>\n<div id=\"drown7-chat\" class=\"phone-shell\" data-contact=\"Caleb\"></div>\n<<done>><<run renderPhoneChat({\n  id: 'drown7-chat',\n  messages: [\n    { who: 'left', text: '你对夏以昼会永远都这么主动吗？' },\n    { who: 'right', text: '？不然呢' }\n  ],\n  nextText: '继续',\n  nextTarget: 'Drown-8'\n})>><</done>>\n<</if>>","Drown-8":"手机屏幕的微光映在夏以昼的脸上，沙发的高度显然没法放下他的腿，只好随意地搭在茶几上。房间里没有明显的分割，沙发的一侧是鼓，另一侧是超大的双人床。灰和黑是房间的主调，唯一的光线来自窗边似乎是不小心拉开了一点的窗帘，和洒满了聚光灯光的舞台相比，这里完全是两个不同的世界。\n\n玄关的墙上挂着两顶机车头盔——一顶黑色，带着细密的划痕，另一顶是全新的粉色，漆面还闪着光。门口的角落里随意摆着个栏杆，挂着造型各异的包和演出服。\n\n<div class=\"drown-scene-card drown-room-fallback\" role=\"img\" aria-label=\"灰黑色房间里有沙发、鼓、头盔和演出服架\"></div>\n\n夏以昼的手指拂过女孩的头像，指尖微微颤抖，盯着看了很久，最终还是没有点下关注。他复制下女孩的id，保存在自己的备忘录里。\n\n[[继续->Drown-9]]","Drown-9":"<div id=\"drown9-chat\" class=\"phone-shell yizhou-phone\" data-contact=\"乐队群聊\"></div>\n<<done>><<run renderPhoneChat({\n  id: 'drown9-chat',\n  contact: '乐队群聊',\n  messages: [\n    { who: 'left', text: '@夏以昼 昼哥终于舍得开个账号了。我们还以为你这辈子都不会开社交媒体了。' },\n    { who: 'right', text: '。' },\n    { who: 'left', text: '昼哥记得随便发点什么。后天就抽奖了，到时候粉丝找不到账号就不好了。' },\n    { who: 'right', text: '知道了。待会会发。' }\n  ],\n  nextText: '继续',\n  nextTarget: 'Drown-10'\n})>><</done>>","Drown-10":"<<run ensureDrownChapterState()>>\n<<set $drownYizhouPostSeen = true>>\n他抬起眼睛，在房间里细细地扫了一圈，目光落在自己脚边的小飞机发夹。他把发夹小心翼翼地拿起来，放在一个精致的盒子里收好。打开手机相机，举起手朝着鼓的方向比了个v。\n\n相片很快就传上了新账号。下一秒，手机传来“叮”一声。有人点赞，随即评论的消息也涌了进来。\n\n<div id=\"drown10-sns\" class=\"sns-phone phone-shell yizhou-phone\"></div>\n<<done>><<run renderSnsApp({\n  id: 'drown10-sns',\n  view: 'feed',\n  title: '夏以昼',\n  time: '12:39',\n  battery: '58%',\n  activeTab: 'profile',\n  topNotice: '新的赞和评论',\n  user: { name: '夏以昼', avatar: '', handle: '@xia_yizhou', meta: 'Skyline Horizon' },\n  posts: [\n    {\n      author: '夏以昼',\n      avatar: '',\n      handle: '@xia_yizhou',\n      time: '刚刚',\n      source: 'iPhone',\n      text: '',\n      image: { title: '新动态照片', src: 'assets/drown-yizhou-room-bg.jpg', fallbackClass: 'drown-room-fallback' },\n      reposts: 0,\n      comments: 1,\n      likes: 39\n    }\n  ],\n  items: [\n    { title: '你', preview: 'xyz终于有账号了，等一个私联（划掉）', profile: { name: '你', avatar: '你' }, unread: true }\n  ]\n})>><</done>>\n\n是她。\n\n“xyz终于有账号了，等一个私联（划掉）”\n\n他低头，指尖再次拂过手机上那个女孩的头像，动作轻得像在触碰什么易碎的东西。唇角一点点上扬，弯出一个让人分不清是温柔还是危险的弧度。\n\n第四章 Drown 线待续。","Caleb-2":"<<run ensureCalebChapterState()>>\n你开始一场又一场地去追，走进不同的酒吧或者地下舞台，仿佛与世界完全隔绝。你学会了……\n\n<<if $liveHabit is \"frontrow\">>\n你开始习惯提前很久到场，在人群还没完全涌进来前占住最靠近舞台的位置。离得近了，夏以昼抬手、落下、转动鼓棒时手腕绷起的线条都清晰得过分。你甚至能看见他额角细小的汗意，在灯光扫过时一闪而过。\n\n[[继续->Caleb-3]]\n<<elseif $liveHabit is \"side\">>\n你慢慢找到了一个属于自己的位置——舞台侧边，离鼓架不算最近，却刚好能看清他上场前的样子。夏以昼有时会在开场前低头调试耳返，或漫不经心地转着鼓棒，视线从观众席扫过。你总觉得，他偶尔会停在你身上半秒。\n\n[[继续->Caleb-3]]\n<<elseif $liveHabit is \"replay\">>\n演出还没开始，你就已经把乐团小号和练习视频翻了很多遍。你开始分辨出夏以昼常用的节奏、惯常的小动作，甚至能在现场听到某段鼓点时，比别人更早意识到那是他临时换过的处理。\n\n[[继续->Caleb-3]]\n<<else>>\n[[提前到场，挤到最靠近舞台的位置。->Caleb-2-frontrow]]\n[[站在熟悉的侧边位置，安静地等他上台。->Caleb-2-side]]\n[[演出前反复刷乐团小号和夏以昼的练习视频。->Caleb-2-replay]]\n<</if>>","Caleb-2-frontrow":"<<set $liveHabit = \"frontrow\">>\n你开始习惯提前很久到场，在人群还没完全涌进来前占住最靠近舞台的位置。离得近了，夏以昼抬手、落下、转动鼓棒时手腕绷起的线条都清晰得过分。你甚至能看见他额角细小的汗意，在灯光扫过时一闪而过。\n\n[[继续->Caleb-3]]","Caleb-2-replay":"<<set $liveHabit = \"replay\">>\n演出还没开始，你就已经把乐团小号和练习视频翻了很多遍。你开始分辨出夏以昼常用的节奏、惯常的小动作，甚至能在现场听到某段鼓点时，比别人更早意识到那是他临时换过的处理。\n\n[[继续->Caleb-3]]","Caleb-2-side":"<<set $liveHabit = \"side\">>\n你慢慢找到了一个属于自己的位置——舞台侧边，离鼓架不算最近，却刚好能看清他上场前的样子。夏以昼有时会在开场前低头调试耳返，或漫不经心地转着鼓棒，视线从观众席扫过。你总觉得，他偶尔会停在你身上半秒。\n\n[[继续->Caleb-3]]","Caleb-3":"在表演中，你的所有注意力都给了夏以昼，你站在台下仰望着拿着鼓棒手腕翻飞的他，对视的时候你可以确定他会对着你微微一笑。有的时候开场前还会用手指转着鼓棒看向你。\n\n<<if $liveHabit is \"frontrow\">>\n你离得足够近，能看清他手腕绷起的弧度，鼓棒划过灯光时短暂的残影，还有额角汗意一闪而过的亮。\n<<elseif $liveHabit is \"side\">>\n你也渐渐习惯从侧边看他上场前调试耳返，或在灯光还未完全亮起时漫不经心地转着鼓棒，视线从观众席扫过。\n<<elseif $liveHabit is \"replay\">>\n你听得出他第三首歌里某段鼓点和练习视频里的处理不太一样，那点细微的变化让你比周围的人更早兴奋起来。\n<</if>>\n\n看演出的次数多了，你也大着胆子会在结束后趴在舞台边边看他收拾鼓棒和自己的东西，但并不会跟他张口搭话。最开始他看到你会愣住，后面也渐渐习惯了你的散场陪伴，走的时候会对你挥挥手，偶尔说一声“回家路上小心”。\n\n[[继续->Caleb-4]]","Caleb-4":"你有的时候会有在那双眼睛里被溺死的错觉。\n\n只是再也没有机会嗅到过那丝淡淡的皮革香水味。\n\n你发现自己越来越习惯这样的距离——近到能看清他每一次抬手落下的细节，却依旧远到没有任何私下的交集。舞台是他，观众是你，界限分明，却又让你甘愿沉溺在这片模糊的边界里。\n\n[[继续->Caleb-6A]]","Caleb-6A":"日子一天天过去，除了琐碎的生活，你被Caleb和夏以昼同时往前牵着。乐团的演出倒是很固定，而Caleb更像是在无孔不入地渗入你的生活。有时是演出后，他会问你有没有注意到夏以昼在某首歌里换了节奏；有时是深夜，他会突然分享一段鼓点的音频，问你觉得像不像夏以昼的风格。你回复得快了，他还会拿出年长者的架子哄你早点睡觉，不要熬夜。\n\n[[继续->Caleb-6B]]","Caleb-6B":"除了Caleb，你也有了一些其他的同好。大家倒也没有正式地见过面，更多的是在网上交流，分享演出细节或乐团小号的动态。偶尔在舞台下见到彼此也只是会客套地寒暄，不过认识了再多人，你最聊得来的还是只有Caleb。他和你一样场场不落，每次演出后都会跟你热烈讨论当晚的鼓点、灯光，甚至夏以昼某个不经意的动作。他总是说，你跟他的音乐喜好真的很契合，而且不止一次感叹真的很喜欢跟你聊天。\n\n可奇怪的是，你一次都没在现场见过他，尽管他说自己每次都在场，演出绝对一场不落。\n\n你试着想象Caleb的模样——或许是那个站在角落低头看手机的男生？又或者是人群中挥舞荧光棒的身影？可演出的时候，你几乎不会注意周围的人群，眼睛只会追随夏以昼。而结束之后，场下的人也都散了七七八八了。每次在脑海中搜寻，你只找到一片模糊的人潮。\n\n你会想象吗？当然会。\n\n[[继续->Caleb-7]]","Caleb-7":"有时候，你觉得Caleb对你的注意似乎超过了舞台上的表演。\n\n他会记得你在某场演出里佩戴的小飞机发夹，会记得你左手那串小苹果手链。这让你有些惊讶——在灯光闪烁、人潮拥挤的场子里，他怎么能记住这种细节。\n\n[[继续->Caleb-8]]","Caleb-8":"<<run ensureCalebChapterState()>>\n<<if $calebAskedToMeet>>\n<div id=\"caleb8-sns\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'caleb8-sns',\n  view: 'thread',\n  title: 'Caleb',\n  time: '00:18',\n  battery: '68%',\n  contact: 'Caleb',\n  messages: [\n    { who: 'right', text: '最近去演出太多次，都没有什么新衣服穿了。' },\n    { who: 'left', text: '之前的小飞机发夹很适合你。最近怎么没戴？' },\n    { who: 'right', text: '笑死，把你从我家装的监控拆了吧。' }\n  ].concat(State.variables.calebInviteTone === 'teasing' ? [\n    { who: 'right', text: '下次别躲着了，看到我就来打招呼。' },\n    { who: 'left', text: '哪有躲着你。只是我们不一定站得很近吧，如果有机会肯定会跟你打招呼的。' }\n  ] : [\n    { who: 'right', text: '我下次就带，到时候记得来找我打招呼。' },\n    { who: 'left', text: '我们不一定站得很近吧……如果有机会肯定会跟你打招呼的。' }\n  ])\n})>><</done>>\n\n<div class=\"phone-complete phone-complete-outside\">[[继续->Caleb-9]]</div>\n<<elseif $calebHairclipViewed and $calebFirstReplySent is false>>\n<div id=\"caleb8-sns\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'caleb8-sns',\n  view: 'thread',\n  title: 'Caleb',\n  time: '00:15',\n  battery: '70%',\n  contact: 'Caleb',\n  messages: [\n    { who: 'left', text: '之前的小飞机发夹很适合你。最近怎么没戴？' }\n  ],\n  secondaryAction: {\n    id: 'first-reply',\n    label: '笑死，把你从我家装的监控拆了吧。',\n    setVars: { calebFirstReplySent: true },\n    goto: 'Caleb-8'\n  }\n})>><</done>>\n\n你伸手拿过发夹，在手中轻轻摩挲着飞机的机翼，脸上露出了你自己也没意识到的笑容。\n<<elseif $calebHairclipViewed>>\n<div id=\"caleb8-sns\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'caleb8-sns',\n  view: 'thread',\n  title: 'Caleb',\n  time: '00:16',\n  battery: '70%',\n  contact: 'Caleb',\n  messages: [\n    { who: 'left', text: '之前的小飞机发夹很适合你。最近怎么没戴？' },\n    { who: 'right', text: '笑死，把你从我家装的监控拆了吧。' }\n  ],\n  actions: [\n    {\n      id: 'invite-direct',\n      label: '我下次就带，到时候记得来找我打招呼。',\n      goto: 'Caleb-8-Final',\n      onClick: function(){\n        State.variables.calebInviteTone = 'direct';\n        State.variables.calebAskedToMeet = true;\n        State.variables.favorCaleb += 1;\n        Engine.play('Caleb-8-Final');\n      }\n    },\n    {\n      id: 'invite-teasing',\n      label: '下次别躲着了，看到我就来打招呼。',\n      goto: 'Caleb-8-Final',\n      onClick: function(){\n        State.variables.calebInviteTone = 'teasing';\n        State.variables.calebAskedToMeet = true;\n        State.variables.favorCaleb += 1;\n        Engine.play('Caleb-8-Final');\n      }\n    }\n  ]\n})>><</done>>\n<<elseif $calebHairclipRebought>>\n<div id=\"caleb8-sns\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'caleb8-sns',\n  view: 'thread',\n  title: 'Caleb',\n  time: '00:13',\n  battery: '70%',\n  contact: 'Caleb',\n  messages: [\n    { who: 'left', text: '之前的小飞机发夹很适合你。最近怎么没戴？' },\n    { type: 'imagePlaceholder', title: '小飞机发夹', caption: '图片占位' }\n  ],\n  secondaryAction: {\n    id: 'view-hairclip',\n    label: '查看小飞机发夹',\n    goto: 'Caleb-8-Hairclip'\n  }\n})>><</done>>\n\n你愣了。那个发夹早在前段时间的一场演出后不慎遗失，一直没找到。可你实在喜欢，犹豫了许久，还是重新买了同款。\n\n而那个发夹今天你刚刚收到。\n\n<<elseif $calebSnsPosted>>\n<div id=\"caleb8-sns\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'caleb8-sns',\n  view: 'feed',\n  title: '首页',\n  time: '00:12',\n  battery: '71%',\n  unread: true,\n  activeTab: 'messages',\n  user: { name: '你', avatar: '你', handle: '@live_notes', meta: 'Skyline Horizon 现场记录' },\n  posts: [\n    { author: '你', avatar: '你', text: '最近去演出太多次，都没有什么新衣服穿了。', likes: 3 }\n  ],\n  messageAction: {\n    id: 'open-caleb-dm',\n    title: 'Caleb',\n    preview: '之前的小飞机发夹很适合你。最近怎么没戴？',\n    badge: '1',\n    profile: { name: 'Caleb', avatar: 'C' },\n    setVars: { calebHairclipRebought: true },\n    goto: 'Caleb-8'\n  }\n})>><</done>>\n<<else>>\n<div id=\"caleb8-sns\" class=\"sns-phone phone-shell\"></div>\n<<done>><<run renderSnsApp({\n  id: 'caleb8-sns',\n  view: 'compose',\n  title: '发微博',\n  time: '00:11',\n  battery: '72%',\n  activeTab: 'home',\n  user: { name: '你', avatar: '你', handle: '@live_notes', meta: 'Skyline Horizon 现场记录' },\n  composeText: '最近去演出太多次，都没有什么新衣服穿了。',\n  primaryAction: {\n    id: 'publish-post',\n    label: '发布',\n    setVars: { calebSnsPosted: true },\n    goto: 'Caleb-8'\n  }\n})>><</done>>\n<</if>>","Caleb-8-Final":"<div id=\"caleb8-final-sns\" class=\"sns-phone phone-shell\"></div>\n<div id=\"caleb8-continue\" class=\"phone-complete phone-complete-outside\"></div>\n\n<<done>><<run renderSnsApp({\n  id: 'caleb8-final-sns',\n  view: 'thread',\n  title: 'Caleb',\n  time: '00:17',\n  battery: '69%',\n  contact: 'Caleb',\n  messages: [\n    { who: 'left', text: '之前的小飞机发夹很适合你。最近怎么没戴？' },\n    { who: 'right', text: '笑死，把你从我家装的监控拆了吧。' }\n  ].concat(State.variables.calebInviteTone === 'teasing' ? [\n    { who: 'right', text: '下次别躲着了，看到我就来打招呼。' }\n  ] : [\n    { who: 'right', text: '我下次就带，到时候记得来找我打招呼。' }\n  ])\n})>><</done>>\n<<done>><<run document.querySelector('#caleb8-final-sns .sns-thread').insertAdjacentHTML('beforeend', '<div id=\"caleb8-typing\" class=\"phone-typing show\">Caleb 正在输入中</div><div id=\"caleb8-final-reply\"></div>')>><</done>>\n\n<<timed 2s>>\n  <<replace \"#caleb8-typing\">><</replace>>\n  <<replace \"#caleb8-final-reply\">>\n    <<if $calebInviteTone is \"teasing\">>\n    <div class=\"msg left\">哪有躲着你。只是我们不一定站得很近吧，如果有机会肯定会跟你打招呼的。</div>\n    <<else>>\n    <div class=\"msg left\">我们不一定站得很近吧……如果有机会肯定会跟你打招呼的。</div>\n    <</if>>\n  <</replace>>\n  <<replace \"#caleb8-continue\">>[[继续->Caleb-9]]<</replace>>\n<</timed>>","Caleb-8-Hairclip":"<<set $calebHairclipViewed = true>>\n<div class=\"image-lightbox-inline\">\n  <div class=\"hairclip-card large\">小飞机发夹<br><span>图片占位</span></div>\n</div>\n\n[[关闭图片->Caleb-8]]","Caleb-9":"<<run ensureCalebChapterState()>>\n<div id=\"chat-caleb9\" class=\"phone-shell\" data-contact=\"Caleb\"></div>\n<script>\nrenderCalebMeetChat({\n  id: 'chat-caleb9',\n  nextTarget: 'Caleb-10'\n});\n<\/script>","Chat_Caleb1":"<div id=\"chat-caleb1\" class=\"phone-shell\" data-contact=\"Caleb\"></div>\n<script>\nrenderPhoneChat({\n  id: \"chat-caleb1\",\n  messages: [\n    { who: \"left\",  text: \"你也喜欢夏以昼吗？\" },\n    { who: \"right\", text: \"是的！\" },\n    { who: \"right\", text: \"我今天第一次去 sh 的 live！被朋友拉过去的\" },\n    { who: \"right\", text: \"在现场就完全被鼓手吸引了🥺 太帅了……怎么有人这么帅啊\" },\n    { who: \"left\",  text: \"我也很喜欢他的表演和音乐理念\" },\n    { who: \"left\",  text: \"难得能碰到他的粉丝，方便加个联系方式吗？\" },\n    { who: \"right\", text: \"这是我的二维码\" },\n    { who: \"right\", text: \"【二维码图片】\" },\n    { who: \"left\",  text: \"算是吧，他组乐队之前就对他有点了解了。\" },\n    { who: \"left\",  text: \"我加你了\" }\n  ],\n  completeText: \"第一章-Ambitious 结束\",\n  nextText: \"继续\",\n  nextTarget: \"Blur\"\n});\n<\/script>","Chat_Caleb2":"<div id=\"chat-caleb2\" class=\"phone-shell\" data-contact=\"Caleb\"></div>\n<script>\nrenderPhoneChat({\n  id: \"chat-caleb2\",\n  messages: [\n    { who: \"right\", text: \"你知道他用的香水是哪一款吗？\" }\n  ],\n  nextText: \"继续\",\n  nextTarget: \"Blur_A1\"\n});\n<\/script>","Chat_Caleb3":"<div id=\"chat-caleb3\" class=\"phone-shell\" data-contact=\"Caleb\"></div>\n<script>\nrenderPhoneChat({\n  id: \"chat-caleb3\",\n  messages: [\n    { who: \"right\", text: \"你知道他用的香水是哪一款吗？\" },\n    { who: \"left\",  text: \"【图片】\", image: \"assets/perfume.jpg\", fallbackImage: \"file:///E:/codex/openclaw/assets/perfume.jpg\" },\n    { who: \"left\",  text: \"好像是这个\" },\n    { who: \"right\", text: \"谢谢，有机会我去看看\" },\n    { who: \"right\", text: \"我该怎么称呼你\" },\n    { who: \"left\",  text: \"Caleb\" }\n  ],\n  nextText: \"继续\",\n  nextTarget: \"Blur-A1\"\n});\n<\/script>","Chat_Caleb4":"<div id=\"chat-caleb4\" class=\"phone-shell\" data-contact=\"Caleb\"></div>\n<<if $path is \"casual\">>\n<script>\nrenderPhoneChat({\n  id: \"chat-caleb4\",\n  messages: [\n    { who: \"right\", text: \"夏以昼今晚的鼓solo太炸了！感觉他好像看了我一眼，不过可能是我想多了，哈哈。\" },\n    { who: \"right\", text: \"而且他转鼓棒的样子真的好帅啊啊啊啊啊怎么有人手指那么长那么好看！还是前排好，能看到这么多细节。\" },\n    { who: \"right\", text: \"下次我还要抢前排！\" },\n    { who: \"left\",  text: \"哈哈，他肯定看了你。站在第二排，那离得很近了。\" },\n    { who: \"right\", text: \"你也在现场？\" },\n    { who: \"left\",  text: \"嗯，我每场都会去。没想到真的是你。\" }\n  ],\n  nextText: \"继续\",\n  nextTarget: \"Blur-E2\"\n});\n<\/script>\n<<else>>\n<script>\nrenderPhoneChat({\n  id: \"chat-caleb4\",\n  messages: [\n    { who: \"right\", text: \"夏以昼今晚的鼓solo太炸了！感觉他好像看了我一眼，不过可能是我想多了，哈哈。\" },\n    { who: \"right\", text: \"而且他转鼓棒的样子真的好帅啊啊啊啊啊怎么有人手指那么长那么好看！还是前排好，能看到这么多细节。\" },\n    { who: \"right\", text: \"下次我还要抢前排！\" },\n    { who: \"left\",  text: \"哈哈，他肯定看了你。站在第二排，那离得很近了。\" },\n    { who: \"left\", text: \"我今天好像看到你了，连衣裙很好看。\" },\n    { who: \"right\", text: \"你也在现场？\" },\n    { who: \"left\",  text: \"嗯，我每场都会去。没想到真的是你。\" }\n  ],\n  nextText: \"继续\",\n  nextTarget: \"Blur-E2\"\n});\n<\/script>\n<</if>>","故事的开始":"<<set $favorYizhou = 0>>\n<<set $favorCaleb = 0>>\n<<set $darkness = 0>>\n<<set $path = 0>> \n\n受朋友邀请，你第一次走进那家地下Live酒吧。\n是一个名为Skyline Horizon的地下乐队的演出。\n\n[[进入第一场演出->Ambitious_A1]]","未命名片段":"2025年9月制作\nCP：【夏以昼x你】\n夏以昼：地下乐团Skyline Horizon的鼓手，本职工作：？？？？\n你：普通社畜，最近受朋友邀请经常看各种乐团演出\n现代paro，没有Evol的世界\n[[开始故事->故事的开始]]"};
+
+const STORY = window.STORY_DATA;
+const START_PASSAGE = window.STORY_START;
+const SAVE_KEY = "twenty-six-things-save-v1";
+const Temp = {};
+const eventBus = new EventTarget();
+
+window.State = {
+  variables: {},
+  history: [],
+  passage: "",
+  getVar(name) {
+    if (typeof name === "string" && name[0] === "$") return this.variables[name.slice(1)] ?? 0;
+    return this.variables[name] ?? 0;
+  }
+};
+
+function random(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+window.random = random;
+
+function emitStoryEvent(name) {
+  eventBus.dispatchEvent(new Event(name));
+  document.dispatchEvent(new Event(name));
+}
+
+window.$ = function(target) {
+  return {
+    on(events, handler) {
+      String(events).split(/\s+/).filter(Boolean).forEach(name => {
+        const clean = name.replace(/^:/, "");
+        eventBus.addEventListener(clean, handler);
+      });
+      return this;
+    }
+  };
+};
+
+function transformExpr(expr) {
+  return String(expr)
+    .replace(/\bis\b/g, "===")
+    .replace(/\band\b/g, "&&")
+    .replace(/\bor\b/g, "||")
+    .replace(/\bnot\s+/g, "!")
+    .replace(/\$(\w+)/g, "State.variables.$1")
+    .replace(/\b_([A-Za-z]\w*)\b/g, "Temp.$1");
+}
+
+function evalExpr(expr) {
+  const js = transformExpr(expr);
+  return Function("State", "Temp", "Engine", "random", "Math", "document", "window", "return (" + js + ");")(
+    State, Temp, Engine, random, Math, document, window
+  );
+}
+
+function execCode(code) {
+  const normalized = String(code).replace(/\bto\b/, "=");
+  const js = transformExpr(normalized);
+  return Function("State", "Temp", "Engine", "random", "Math", "document", "window", js)(
+    State, Temp, Engine, random, Math, document, window
+  );
+}
+
+function findMatching(src, startIndex, openName, closeName) {
+  const re = /<<\/?([A-Za-z_][\w-]*)(?:\s[^>]*)?>>/g;
+  re.lastIndex = startIndex;
+  let depth = 1;
+  let m;
+  while ((m = re.exec(src))) {
+    const full = m[0];
+    const name = m[1];
+    if (name === openName && !full.startsWith("<</")) depth += 1;
+    if (name === closeName && full.startsWith("<</")) {
+      depth -= 1;
+      if (depth === 0) return { start: m.index, end: re.lastIndex };
+    }
+  }
+  return null;
+}
+
+function splitIfBranches(inner, firstCond) {
+  const branches = [{ cond: firstCond, bodyStart: 0, bodyEnd: inner.length }];
+  const re = /<<(elseif)([^>]*)>>|<<(else)>>|<<if\s+[^>]*>>|<<\/if>>/g;
+  let depth = 0;
+  let current = branches[0];
+  let m;
+  while ((m = re.exec(inner))) {
+    const token = m[0];
+    if (token.startsWith("<<if")) {
+      depth += 1;
+      continue;
+    }
+    if (token.startsWith("<</if")) {
+      depth -= 1;
+      continue;
+    }
+    if (depth !== 0) continue;
+    current.bodyEnd = m.index;
+    if (m[1] === "elseif") {
+      current = { cond: m[2].trim(), bodyStart: re.lastIndex, bodyEnd: inner.length };
+    } else {
+      current = { cond: null, bodyStart: re.lastIndex, bodyEnd: inner.length };
+    }
+    branches.push(current);
+  }
+  return branches.map(b => ({ cond: b.cond, body: inner.slice(b.bodyStart, b.bodyEnd) }));
+}
+
+function processInlineScripts(html, deferred) {
+  return html.replace(/<script>([\s\S]*?)<\/script>/gi, (_, code) => {
+    deferred.push(() => execCode(code));
+    return "";
+  });
+}
+
+function processWiki(src, options = {}) {
+  const deferred = [];
+  const immediate = options.immediate !== false;
+  const deferRuns = !!options.deferRuns;
+
+  function renderRange(text) {
+    let out = "";
+    let i = 0;
+    while (i < text.length) {
+      const idx = text.indexOf("<<", i);
+      if (idx === -1) {
+        out += text.slice(i);
+        break;
+      }
+      out += text.slice(i, idx);
+
+      const rest = text.slice(idx);
+      let m;
+      if ((m = rest.match(/^<<=\s*([\s\S]*?)\s*>>/))) {
+        out += escapeHTML(evalExpr(m[1]));
+        i = idx + m[0].length;
+        continue;
+      }
+      if ((m = rest.match(/^<<set\s+([\s\S]*?)>>/))) {
+        if (immediate) execCode(m[1]);
+        i = idx + m[0].length;
+        continue;
+      }
+      if ((m = rest.match(/^<<run\s+([\s\S]*?)>>/))) {
+        const fn = () => execCode(m[1]);
+        if (deferRuns) deferred.push(fn);
+        else if (immediate) fn();
+        i = idx + m[0].length;
+        continue;
+      }
+      if ((m = rest.match(/^<<done>>/))) {
+        const match = findMatching(text, idx + m[0].length, "done", "done");
+        if (!match) { i = idx + m[0].length; continue; }
+        const sub = processWiki(text.slice(idx + m[0].length, match.start), { deferRuns: true, immediate });
+        out += sub.html;
+        deferred.push(...sub.deferred);
+        i = match.end;
+        continue;
+      }
+      if ((m = rest.match(/^<<if\s+([\s\S]*?)>>/))) {
+        const match = findMatching(text, idx + m[0].length, "if", "if");
+        if (!match) { i = idx + m[0].length; continue; }
+        const inner = text.slice(idx + m[0].length, match.start);
+        const branches = splitIfBranches(inner, m[1].trim());
+        const selected = branches.find(b => b.cond === null || !!evalExpr(b.cond));
+        if (selected) {
+          const sub = processWiki(selected.body, { immediate, deferRuns });
+          out += sub.html;
+          deferred.push(...sub.deferred);
+        }
+        i = match.end;
+        continue;
+      }
+      if ((m = rest.match(/^<<replace\s+["']([^"']+)["']>>/))) {
+        const match = findMatching(text, idx + m[0].length, "replace", "replace");
+        if (!match) { i = idx + m[0].length; continue; }
+        const selector = m[1];
+        const body = text.slice(idx + m[0].length, match.start);
+        if (immediate) {
+          const sub = processWiki(body, { immediate: true });
+          const fn = () => {
+            document.querySelectorAll(selector).forEach(el => {
+              el.innerHTML = sub.html;
+              enhanceLinks(el);
+              runDeferred(sub.deferred);
+            });
+          };
+          deferred.push(fn);
+        }
+        i = match.end;
+        continue;
+      }
+      if ((m = rest.match(/^<<timed\s+([\d.]+)s>>/))) {
+        const match = findMatching(text, idx + m[0].length, "timed", "timed");
+        if (!match) { i = idx + m[0].length; continue; }
+        const seconds = Number(m[1]);
+        const body = text.slice(idx + m[0].length, match.start);
+        if (immediate) deferred.push(() => setTimeout(() => {
+          const sub = processWiki(body, { immediate: true });
+          runDeferred(sub.deferred);
+        }, seconds * 1000));
+        i = match.end;
+        continue;
+      }
+      if ((m = rest.match(/^<<button\s+["']([^"']+)["']>>/))) {
+        const match = findMatching(text, idx + m[0].length, "button", "button");
+        if (!match) { i = idx + m[0].length; continue; }
+        const id = "action-" + Math.random().toString(36).slice(2);
+        const body = text.slice(idx + m[0].length, match.start);
+        out += '<button class="link-internal runtime-button" data-runtime-action="' + id + '">' + escapeHTML(m[1]) + '</button>';
+        deferred.push(() => {
+          const btn = document.querySelector('[data-runtime-action="' + id + '"]');
+          if (btn) btn.addEventListener("click", () => {
+            const sub = processWiki(body, { immediate: true });
+            runDeferred(sub.deferred);
+            if (sub.html.trim()) {
+              const span = document.createElement("span");
+              span.innerHTML = sub.html;
+              btn.insertAdjacentElement("afterend", span);
+              enhanceLinks(span);
+            }
+          }, { once: true });
+        });
+        i = match.end;
+        continue;
+      }
+      if ((m = rest.match(/^<<\/?(?:elseif|else|if|done|replace|timed|button|widget|link)[^>]*>>/))) {
+        i = idx + m[0].length;
+        continue;
+      }
+      out += "<<";
+      i = idx + 2;
+    }
+    return out;
+  }
+
+  let html = renderRange(src);
+  html = html.replace(/\[\[([^\]|]+?)->([^\]]+?)\]\]/g, (_, label, target) =>
+    '<a href="#" class="link-internal" data-passage="' + escapeHTML(target.trim()) + '">' + escapeHTML(label.trim()) + '</a>'
+  );
+  html = html.replace(/\[\[([^\]|]+?)\]\]/g, (_, target) =>
+    '<a href="#" class="link-internal" data-passage="' + escapeHTML(target.trim()) + '">' + escapeHTML(target.trim()) + '</a>'
+  );
+  html = processInlineScripts(html, deferred);
+  return { html, deferred };
+}
+
+function runDeferred(tasks) {
+  for (const task of tasks) {
+    try { task(); } catch (err) { console.error(err); }
+  }
+}
+
+function enhanceLinks(root = document) {
+  root.querySelectorAll("a.link-internal[data-passage]").forEach(link => {
+    if (link.dataset.bound) return;
+    link.dataset.bound = "1";
+    link.addEventListener("click", ev => {
+      ev.preventDefault();
+      Engine.play(link.dataset.passage);
+    });
+  });
+}
+
+window.Engine = {
+  play(name, opts = {}) {
+    const body = STORY[name];
+    if (body == null) {
+      console.error("Missing passage", name);
+      return;
+    }
+    if (!opts.replace && State.passage) State.history.push({ passage: State.passage, variables: structuredClone(State.variables), memoEntries: [...(window.memoEntries || [])] });
+    State.passage = name;
+    emitStoryEvent("passageinit");
+    const result = processWiki(body, { immediate: true });
+    const passage = document.getElementById("passages");
+    passage.innerHTML = '<div class="passage" data-passage="' + escapeHTML(name) + '">' + result.html + '</div>';
+    enhanceLinks(passage);
+    runDeferred(result.deferred);
+    emitStoryEvent("passagedisplay");
+    emitStoryEvent("passageend");
+    window.scrollTo({ top: 0, behavior: "instant" });
+  },
+  back() {
+    const previous = State.history.pop();
+    if (!previous) return;
+    State.variables = structuredClone(previous.variables);
+    window.memoEntries = [...(previous.memoEntries || [])];
+    const name = previous.passage;
+    State.passage = "";
+    this.play(name, { replace: true });
+  },
+  restart() {
+    localStorage.removeItem(SAVE_KEY);
+    State.variables = {};
+    State.history = [];
+    window.memoEntries = [];
+    this.play(START_PASSAGE, { replace: true });
+  }
+};
+
+function saveGame() {
+  localStorage.setItem(SAVE_KEY, JSON.stringify({
+    passage: State.passage,
+    variables: State.variables,
+    memoEntries: window.memoEntries || []
+  }));
+  showPhoneToast("已保存", "stat");
+}
+
+function loadGame() {
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (!raw) {
+    showPhoneToast("没有可读取的存档", "notice");
+    return;
+  }
+  const save = JSON.parse(raw);
+  State.variables = save.variables || {};
+  window.memoEntries = save.memoEntries || [];
+  Engine.play(save.passage || START_PASSAGE, { replace: true });
+  showPhoneToast("已读取", "stat");
+}
+
+function toggleGameMenu(force) {
+  const menu = document.getElementById("game-menu");
+  const open = force == null ? !menu.classList.contains("open") : !!force;
+  menu.classList.toggle("open", open);
+}
+
+window.saveGame = saveGame;
+window.loadGame = loadGame;
+window.toggleGameMenu = toggleGameMenu;
+
+document.addEventListener("click", ev => {
+  if (ev.target.closest("#game-menu-button")) {
+    toggleGameMenu();
+    return;
+  }
+  if (!ev.target.closest("#game-menu") && !ev.target.closest("#game-menu-button")) {
+    toggleGameMenu(false);
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("menu-back").addEventListener("click", () => { toggleGameMenu(false); Engine.back(); });
+  document.getElementById("menu-stats").addEventListener("click", () => { toggleGameMenu(false); openStats(); });
+  document.getElementById("menu-memo").addEventListener("click", () => { toggleGameMenu(false); openMemo(); });
+  document.getElementById("menu-save").addEventListener("click", () => { toggleGameMenu(false); saveGame(); });
+  document.getElementById("menu-load").addEventListener("click", () => { toggleGameMenu(false); loadGame(); });
+  document.getElementById("menu-restart").addEventListener("click", () => { toggleGameMenu(false); Engine.restart(); });
+  Engine.play(START_PASSAGE, { replace: true });
+});
+
+/* === 工具：根据数值返回阴暗度标签 === */
+function getDarkLabel(dk){
+  if (dk <= 20) return '？？？';
+  if (dk <= 50) return '阴影';
+  return '阴暗度';
+}
+
+/* === 渲染状态内容（供 open/更新 共用） === */
+function renderStatsHTML(){
+  const fy = State.getVar('$favorYizhou');
+  const fc = State.getVar('$favorCaleb');
+  const dk = State.getVar('$darkness');
+  const pct = v => Math.min(100, Math.max(0, v));  // 0-100 直接当百分比
+
+  return `
+    <div class="stats-section">
+      <div class="stat-row">
+        <div class="stat-label">夏以昼好感度</div>
+        <div class="stat-val">${fy}%</div>
+        <div class="stat-meter"><span style="width:${pct(fy)}%"></span></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Caleb</div>
+        <div class="stat-val">${fc}%</div>
+        <div class="stat-meter"><span style="width:${pct(fc)}%"></span></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">${getDarkLabel(dk)}</div>
+        <div class="stat-val">${dk}%</div>
+        <div class="stat-meter dark"><span style="width:${pct(dk)}%"></span></div>
+      </div>
+    </div>`;
+}
+
+/* === 状态面板 === */
+window.openStats = function(){
+  const modal = document.getElementById('stats-modal');
+  const body  = document.getElementById('stats-body');
+  if (!modal || !body) return;
+
+  body.innerHTML = renderStatsHTML();
+  modal.classList.add('open');
+};
+
+/* 在不关闭弹窗的情况下刷新内容 */
+window.updateStats = function(){
+  const modal = document.getElementById('stats-modal');
+  const body  = document.getElementById('stats-body');
+  if (modal && modal.classList.contains('open') && body){
+    body.innerHTML = renderStatsHTML();
+  }
+};
+
+window.closeStats = function(){
+  document.getElementById('stats-modal')?.classList.remove('open');
+};
+
+/* === 手机互动工具 === */
+function escapeHTML(text){
+  return String(text).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[ch]));
+}
+
+function showPhoneToast(text, tone){
+  const toast = document.createElement('div');
+  toast.className = 'phone-toast phone-notice stat-pop ' + (tone || '');
+  toast.textContent = text;
+  document.body.appendChild(toast);
+  requestAnimationFrame(()=> toast.classList.add('show'));
+  setTimeout(()=>{
+    toast.classList.remove('show');
+    setTimeout(()=> toast.remove(), 260);
+  }, 1700);
+}
+
+window.renderPhoneChat = function(config){
+  const root = document.getElementById(config.id);
+  if (!root) return;
+
+  const contact = root.dataset.contact || config.contact || 'Caleb';
+  const messages = config.messages || [];
+  let index = 0;
+  let done = false;
+
+  root.innerHTML = `
+    <div class="phone-status"><span>23:46</span><span>5G  72%</span></div>
+    <div class="phone-titlebar">
+      <span class="phone-back">‹</span>
+      <span>${escapeHTML(contact)}</span>
+      <span class="phone-dot"></span>
+    </div>
+    <div class="phone-chat" id="${config.id}-chat"></div>
+    <div class="phone-typing" id="${config.id}-typing">${escapeHTML(contact)} 正在输入中</div>
+    <button class="phone-compose" id="${config.id}-compose" type="button"></button>
+  `;
+  let complete = document.getElementById(config.id + '-complete');
+  if (!complete) {
+    complete = document.createElement('div');
+    complete.id = config.id + '-complete';
+    complete.className = 'phone-complete phone-complete-outside';
+    root.insertAdjacentElement('afterend', complete);
+  }
+  complete.innerHTML = '';
+
+  const box = document.getElementById(config.id + '-chat');
+  const typing = document.getElementById(config.id + '-typing');
+  const compose = document.getElementById(config.id + '-compose');
+  const incomingDelay = Number(config.incomingDelay || 900);
+  const outgoingDelay = Number(config.outgoingDelay || 560);
+  let waitingForPlayer = false;
+
+  function appendMessage(msg){
+    typing.classList.remove('show');
+    const div = document.createElement('div');
+    div.className = 'msg ' + msg.who + (msg.text === '【二维码图片】' || msg.text === '【图片】' ? ' image-msg' : '');
+    if (msg.image) {
+      const img = document.createElement('img');
+      img.alt = msg.text || '';
+      img.src = msg.image;
+      img.onerror = function(){
+        if (msg.fallbackImage && img.src !== msg.fallbackImage) {
+          img.src = msg.fallbackImage;
+          return;
+        }
+        div.textContent = msg.text || '【图片】';
+      };
+      div.appendChild(img);
+    } else {
+      div.textContent = msg.text;
+    }
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function finishChat(){
+    if (done) return;
+    done = true;
+    if (config.completeText) {
+      const note = document.createElement('div');
+      note.className = 'phone-chapter-note';
+      note.textContent = config.completeText;
+      complete.appendChild(note);
+    }
+    if (config.nextTarget) {
+      const link = document.createElement('a');
+      link.className = 'link-internal phone-continue';
+      link.setAttribute('data-passage', config.nextTarget);
+      link.href = 'javascript:void(0)';
+      link.textContent = config.nextText || '继续';
+      link.addEventListener('click', function(){
+        Engine.play(config.nextTarget);
+      });
+      complete.appendChild(link);
+    }
+    complete.classList.add('show');
+  }
+
+  function step(){
+    if (done) return;
+    if (index >= messages.length) {
+      finishChat();
+      return;
+    }
+
+    const msg = messages[index++];
+    if (msg.who === 'left') {
+      compose.classList.remove('show');
+      typing.classList.add('show');
+      root.classList.add('buzz');
+      setTimeout(()=> root.classList.remove('buzz'), 220);
+      setTimeout(()=>{
+        appendMessage(msg);
+        setTimeout(step, incomingDelay);
+      }, 520);
+    } else {
+      waitingForPlayer = true;
+      compose.textContent = msg.text;
+      compose.classList.add('show');
+      compose.onclick = function(){
+        if (!waitingForPlayer) return;
+        waitingForPlayer = false;
+        compose.classList.remove('show');
+        appendMessage(msg);
+        setTimeout(step, outgoingDelay);
+      };
+    }
+  }
+
+  showPhoneToast('新私信', 'notice');
+  setTimeout(step, 520);
+};
+
+window.renderSnsApp = function(config){
+  const root = document.getElementById(config.id);
+  if (!root) return;
+
+  const user = Object.assign({
+    name: '你',
+    avatar: '你',
+    handle: '@live_notes',
+    meta: 'Skyline Horizon 现场记录'
+  }, config.user || {});
+  const view = config.view || 'feed';
+  const activeTab = config.activeTab || (view === 'messages' || view === 'thread' ? 'messages' : (view === 'profile' ? 'profile' : 'home'));
+  const titleMap = {
+    compose: '发微博',
+    feed: '首页',
+    notifications: '消息',
+    messages: '消息',
+    profile: '个人主页',
+    thread: config.contact || '私信'
+  };
+
+  function avatarHTML(profile, small){
+    const p = Object.assign(user, profile || {});
+    const empty = p.avatar === '';
+    return `<div class="sns-avatar${small ? ' small' : ''}${empty ? ' empty' : ''}">${empty ? '' : escapeHTML(p.avatar || p.name || '你').slice(0, 2)}</div>`;
+  }
+
+  function actionButton(action, extraClass){
+    if (!action) return '';
+    const label = escapeHTML(action.label || '继续');
+    return `<button class="sns-action ${extraClass || ''}" type="button" data-sns-action="${escapeHTML(action.id || '')}">${label}</button>`;
+  }
+
+  function navHTML(){
+    const items = [
+      ['home', '首页'],
+      ['discover', '发现'],
+      ['messages', '消息'],
+      ['profile', '我的']
+    ];
+    return `<div class="sns-bottom-nav">${items.map(([id, label]) =>
+      `<span class="${activeTab === id ? 'active' : ''}">${escapeHTML(label)}</span>`
+    ).join('')}</div>`;
+  }
+
+  function topbarHTML(){
+    const title = config.title || titleMap[view] || '首页';
+    const unread = config.unread ? '<span class="sns-top-dot"></span>' : '';
+    return `
+      <div class="phone-status"><span>${escapeHTML(config.time || '00:12')}</span><span>5G  ${escapeHTML(config.battery || '72%')}</span></div>
+      <div class="sns-topbar">
+        <span class="phone-back">${config.back === false ? '' : '‹'}</span>
+        <strong>${escapeHTML(title)}</strong>
+        <span class="sns-more">${unread || '•••'}</span>
+      </div>`;
+  }
+
+  function imageCardHTML(image){
+    if (!image) return '';
+    const cls = image.fallbackClass ? ` ${escapeHTML(image.fallbackClass)}` : '';
+    const src = image.src ? ` style="--sns-img:url('${escapeHTML(image.src)}')"` : '';
+    return `<div class="sns-image-card${cls}"${src}><span>${escapeHTML(image.title || '图片')}</span></div>`;
+  }
+
+  function repostHTML(repost){
+    if (!repost) return '';
+    return `<div class="sns-repost"><strong>${escapeHTML(repost.author || '')}</strong><p>${escapeHTML(repost.text || '')}</p></div>`;
+  }
+
+  function postHTML(post){
+    const p = Object.assign({
+      author: user.name,
+      avatar: user.avatar,
+      handle: user.handle,
+      time: '刚刚',
+      source: '微博移动端',
+      reposts: 0,
+      comments: 0,
+      likes: 0
+    }, post || {});
+    return `
+      <article class="sns-feed-card">
+        <div class="sns-post-head">
+          ${avatarHTML({ name: p.author, avatar: p.avatar }, true)}
+          <div class="sns-author">
+            <div class="sns-name">${escapeHTML(p.author)}</div>
+            <div class="sns-time">${escapeHTML(p.time)} · 来自 ${escapeHTML(p.source)}</div>
+          </div>
+        </div>
+        <div class="sns-text">${escapeHTML(p.text || '')}</div>
+        ${imageCardHTML(p.image)}
+        ${repostHTML(p.repostOf)}
+        <div class="sns-actionbar">
+          <span>转发 ${escapeHTML(p.reposts)}</span>
+          <span>评论 ${escapeHTML(p.comments)}</span>
+          <span>赞 ${escapeHTML(p.likes)}</span>
+        </div>
+      </article>`;
+  }
+
+  function composeHTML(){
+    return `
+      ${topbarHTML()}
+      <div class="sns-scroll sns-publish-page">
+        <div class="sns-profile-strip">
+          ${avatarHTML(user)}
+          <div>
+            <div class="sns-profile-name">${escapeHTML(user.name)}</div>
+            <div class="sns-profile-meta">${escapeHTML(user.meta)}</div>
+          </div>
+        </div>
+        <div class="sns-editor">
+          <div class="sns-editor-text">${escapeHTML(config.composeText || '')}</div>
+          ${repostHTML(config.repostOf)}
+          <div class="sns-tool-row"><span>图片</span><span># 话题</span><span>位置</span><span>公开</span></div>
+        </div>
+        ${actionButton(config.primaryAction, 'primary')}
+      </div>
+      ${navHTML()}`;
+  }
+
+  function feedHTML(){
+    const posts = config.posts || [];
+    return `
+      ${topbarHTML()}
+      <div class="sns-scroll sns-feed">
+        ${config.topNotice ? `<div class="sns-notice-pill">${escapeHTML(config.topNotice)}</div>` : ''}
+        <div class="sns-profile-strip compact">
+          ${avatarHTML(user)}
+          <div>
+            <div class="sns-profile-name">${escapeHTML(user.name)}</div>
+            <div class="sns-profile-meta">${escapeHTML(user.meta)}</div>
+          </div>
+        </div>
+        ${posts.map(postHTML).join('')}
+        ${config.messageAction ? `
+          <button class="sns-thread-card unread" type="button" data-sns-action="${escapeHTML(config.messageAction.id)}">
+            ${avatarHTML(config.messageAction.profile || { name: 'Caleb', avatar: 'C' }, true)}
+            <span><strong>${escapeHTML(config.messageAction.title || '私信')}</strong><em>${escapeHTML(config.messageAction.preview || '')}</em></span>
+            <b>${escapeHTML(config.messageAction.badge || '1')}</b>
+          </button>` : ''}
+        ${(config.items || []).map(item => `
+          <div class="sns-thread-card ${item.unread ? 'unread' : ''}">
+            ${avatarHTML(item.profile || {}, true)}
+            <span><strong>${escapeHTML(item.title || '')}</strong><em>${escapeHTML(item.preview || '')}</em></span>
+            ${item.badge ? `<b>${escapeHTML(item.badge)}</b>` : ''}
+          </div>`).join('')}
+      </div>
+      ${navHTML()}`;
+  }
+
+  function profileHTML(){
+    const profile = Object.assign({
+      name: user.name,
+      avatar: user.avatar,
+      handle: user.handle,
+      meta: user.meta,
+      bio: '',
+      stats: ['0 关注', '0 粉丝', '0 动态'],
+      emptyText: '还没有发布任何内容'
+    }, config.profile || {});
+    return `
+      ${topbarHTML()}
+      <div class="sns-scroll sns-profile-page">
+        <div class="sns-profile-hero">
+          <div class="sns-profile-avatar">${avatarHTML(profile)}</div>
+          <div class="sns-profile-main">
+            <strong>${escapeHTML(profile.name)}</strong>
+            <span>${escapeHTML(profile.handle || '')}</span>
+          </div>
+          ${actionButton(config.profileAction, 'primary compact')}
+        </div>
+        <div class="sns-profile-bio">${escapeHTML(profile.bio || profile.meta || '')}</div>
+        <div class="sns-profile-stats">${(profile.stats || []).map(s => `<span>${escapeHTML(s)}</span>`).join('')}</div>
+        <div class="sns-empty-state">${escapeHTML(profile.emptyText || '')}</div>
+      </div>
+      ${navHTML()}`;
+  }
+
+  function notificationsHTML(){
+    return `
+      ${topbarHTML()}
+      <div class="sns-scroll sns-message-list">
+        ${(config.items || []).map(item => `
+          <button class="sns-thread-card ${item.unread ? 'unread' : ''}" type="button" data-sns-action="${escapeHTML(item.action || '')}">
+            ${avatarHTML(item.profile || {}, true)}
+            <span><strong>${escapeHTML(item.title || '')}</strong><em>${escapeHTML(item.preview || '')}</em></span>
+            ${item.badge ? `<b>${escapeHTML(item.badge)}</b>` : ''}
+          </button>`).join('')}
+      </div>
+      ${navHTML()}`;
+  }
+
+  function threadHTML(){
+    const messages = config.messages || [];
+    return `
+      ${topbarHTML()}
+      <div class="phone-chat sns-thread">
+        ${messages.map(msg => {
+          if (msg.type === 'imagePlaceholder') {
+            return `<div class="hairclip-card">${escapeHTML(msg.title || '图片')}<br><span>${escapeHTML(msg.caption || '图片占位')}</span></div>`;
+          }
+          return `<div class="msg ${escapeHTML(msg.who || 'left')}">${escapeHTML(msg.text || '')}</div>`;
+        }).join('')}
+      </div>
+      ${config.bodyNote ? `<div class="sns-inline-note">${escapeHTML(config.bodyNote)}</div>` : ''}
+      ${config.secondaryAction ? `<div class="phone-action-row">${actionButton(config.secondaryAction)}</div>` : ''}
+      ${config.actions && config.actions.length ? `<div class="phone-action-row">${config.actions.map(action => actionButton(action)).join('')}</div>` : ''}`;
+  }
+
+  const renderers = {
+    compose: composeHTML,
+    feed: feedHTML,
+    notifications: notificationsHTML,
+    messages: notificationsHTML,
+    profile: profileHTML,
+    thread: threadHTML
+  };
+
+  root.classList.add('sns-phone', 'phone-shell');
+  root.innerHTML = (renderers[view] || feedHTML)();
+
+  const actions = {};
+  (config.actions || []).concat(config.primaryAction || [], config.secondaryAction || [], config.messageAction || [], config.profileAction || [], config.items || [])
+    .filter(Boolean)
+    .forEach(action => {
+      const id = action.id || action.action;
+      if (id) actions[id] = action;
+    });
+
+  root.querySelectorAll('[data-sns-action]').forEach(button => {
+    button.addEventListener('click', function(){
+      const action = actions[button.getAttribute('data-sns-action')];
+      if (!action) return;
+      if (typeof action.onClick === 'function') {
+        action.onClick();
+        return;
+      }
+      if (action.setVars) {
+        Object.keys(action.setVars).forEach(key => {
+          State.variables[key] = action.setVars[key];
+        });
+      }
+      if (action.goto) Engine.play(action.goto);
+    });
+  });
+};
+
+/* === 第三章 Caleb 线工具 === */
+window.ensureCalebChapterState = function(){
+  const vars = State.variables;
+  if (vars.liveHabit === undefined) vars.liveHabit = "";
+  if (vars.calebHairclipRebought === undefined) vars.calebHairclipRebought = false;
+  if (vars.calebInviteTone === undefined) vars.calebInviteTone = "";
+  if (vars.calebAskedToMeet === undefined) vars.calebAskedToMeet = false;
+  if (vars.calebEyeFlashSeen === undefined) vars.calebEyeFlashSeen = false;
+  if (vars.calebSnsPosted === undefined) vars.calebSnsPosted = false;
+  if (vars.calebHairclipViewed === undefined) vars.calebHairclipViewed = false;
+  if (vars.calebFirstReplySent === undefined) vars.calebFirstReplySent = false;
+  if (vars.calebEyeFlashBlackout === undefined) vars.calebEyeFlashBlackout = false;
+};
+
+window.ensureDrownChapterState = function(){
+  const vars = State.variables;
+  if (vars.drownOfficialSeen === undefined) vars.drownOfficialSeen = false;
+  if (vars.drownPracticePhotoViewed === undefined) vars.drownPracticePhotoViewed = false;
+  if (vars.drownYizhouAccountSeen === undefined) vars.drownYizhouAccountSeen = false;
+  if (vars.drownYizhouFollowed === undefined) vars.drownYizhouFollowed = false;
+  if (vars.drownLotteryReposted === undefined) vars.drownLotteryReposted = false;
+  if (vars.drownCalebJealousRead === undefined) vars.drownCalebJealousRead = false;
+  if (vars.drownYizhouPostSeen === undefined) vars.drownYizhouPostSeen = false;
+};
+
+window.showCalebEyeFlash = function(done){
+  const finish = function(){
+    if (typeof done === 'function') done();
+  };
+  const sources = [
+    'assets/caleb-eye-strip.jpg',
+    'file:///E:/codex/openclaw/assets/caleb-eye-strip.jpg'
+  ];
+  let sourceIndex = 0;
+  const img = new Image();
+  img.onload = function(){
+    const overlay = document.createElement('div');
+    overlay.className = 'caleb-eye-flash';
+    if (State.variables.calebEyeFlashBlackout) {
+      overlay.classList.add('blackout');
+    }
+    const strip = document.createElement('img');
+    strip.src = img.src;
+    strip.alt = '';
+    overlay.appendChild(strip);
+    document.body.appendChild(overlay);
+    State.variables.calebEyeFlashSeen = true;
+    setTimeout(()=> overlay.classList.add('show'), 820);
+    setTimeout(()=> overlay.classList.add('fade'), 1120);
+    setTimeout(()=>{
+      overlay.remove();
+      finish();
+    }, 1380);
+  };
+  img.onerror = function(){
+    sourceIndex += 1;
+    if (sourceIndex >= sources.length) {
+      finish();
+      return;
+    }
+    img.src = sources[sourceIndex];
+  };
+  img.src = sources[sourceIndex];
+};
+
+window.renderCalebMeetChat = function(config){
+  const root = document.getElementById(config.id);
+  if (!root) return;
+
+  root.innerHTML = `
+    <div class="phone-status"><span>00:24</span><span>5G  66%</span></div>
+    <div class="phone-titlebar">
+      <span class="phone-back">‹</span>
+      <span>Caleb</span>
+      <span class="phone-dot"></span>
+    </div>
+    <div class="phone-chat" id="${config.id}-chat"></div>
+    <div class="phone-typing" id="${config.id}-typing">Caleb 正在输入中</div>
+    <button class="phone-compose" id="${config.id}-compose" type="button"></button>
+  `;
+  let complete = document.getElementById(config.id + '-complete');
+  if (!complete) {
+    complete = document.createElement('div');
+    complete.id = config.id + '-complete';
+    complete.className = 'phone-complete phone-complete-outside';
+    root.insertAdjacentElement('afterend', complete);
+  }
+  complete.innerHTML = '';
+
+  const box = document.getElementById(config.id + '-chat');
+  const typing = document.getElementById(config.id + '-typing');
+  const compose = document.getElementById(config.id + '-compose');
+
+  function addBubble(who, text){
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function finish(){
+    const link = document.createElement('a');
+    link.className = 'link-internal phone-continue';
+    link.href = 'javascript:void(0)';
+    link.textContent = '继续';
+    link.addEventListener('click', function(){
+      Engine.play(config.nextTarget || 'Caleb-10');
+    });
+    complete.appendChild(link);
+    complete.classList.add('show');
+  }
+
+  setTimeout(function(){
+    typing.classList.add('show');
+  }, 400);
+  setTimeout(function(){
+    typing.classList.remove('show');
+    addBubble('left', '你真的很想跟我见面吗？');
+    compose.textContent = '真的真的（秒回）';
+    compose.classList.add('show');
+  }, 1200);
+
+  compose.addEventListener('click', function(){
+    if (!compose.classList.contains('show')) return;
+    compose.classList.remove('show');
+    addBubble('right', '真的真的。');
+    setTimeout(function(){
+      const silence = document.createElement('div');
+      silence.className = 'phone-silence';
+      silence.textContent = 'Caleb沉寂了，并没有回复你的消息。';
+      box.appendChild(silence);
+      box.scrollTop = box.scrollHeight;
+    }, 700);
+    setTimeout(function(){
+      if (State.variables.calebEyeFlashSeen) {
+        finish();
+        return;
+      }
+      State.variables.calebEyeFlashBlackout = true;
+      showCalebEyeFlash(function(){
+        State.variables.calebEyeFlashBlackout = false;
+        finish();
+      });
+    }, 1700);
+  });
+};
+
+/* === 剧情记忆面板 === */
+window.memoEntries = [];
+window.addMemo = function(text){
+  window.memoEntries.push(text);
+  showPhoneToast('记忆已解锁', 'memo');
+};
+
+window.openMemo = function(){
+  const modal = document.getElementById('memo-modal');
+  const body  = document.getElementById('memo-body');
+  if (!modal || !body) return;
+
+  body.innerHTML = '';
+  if(window.memoEntries.length === 0){
+    body.innerHTML = '<p>目前还没有解锁任何回忆。</p>';
+  } else {
+    window.memoEntries.forEach((t)=>{
+      body.innerHTML += `<div class="memo-entry">${t}</div>`;
+    });
+  }
+  modal.classList.add('open');
+};
+
+window.closeMemo = function(){
+  document.getElementById('memo-modal')?.classList.remove('open');
+};
+
+/* === 通用：Esc 关闭 === */
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){
+    window.closeStats();
+    window.closeMemo();
+  }
+});
+
+/* 可选：每次换页如果状态弹窗开着则自动刷新 */
+window.lastStats = { favorYizhou: 0, favorCaleb: 0, darkness: 0 };
+$(document).on(':passageend', ()=> window.updateStats());
+
+$(document).on(':passagedisplay', function () {
+  const passage = document.querySelector('.passage');
+  if (passage) {
+    const choiceLinks = Array.from(passage.querySelectorAll('a.link-internal')).filter(link =>
+      !link.closest('.phone-shell, .ticket-app, .phone-complete, .image-lightbox-inline')
+    );
+    if (choiceLinks.length && !passage.querySelector('.choice-panel')) {
+      const panel = document.createElement('div');
+      panel.className = 'choice-panel';
+      const first = choiceLinks[0];
+      first.parentNode.insertBefore(panel, first);
+      choiceLinks.forEach(link => {
+        const prev = link.previousSibling;
+        if (prev && prev.nodeType === Node.TEXT_NODE) {
+          prev.textContent = prev.textContent.replace(/[\s\r\n-]+$/, '');
+        }
+        panel.appendChild(link);
+      });
+    }
+  }
+
+  const vars = State.variables || {};
+  const current = {
+    favorYizhou: Number(vars.favorYizhou || 0),
+    favorCaleb: Number(vars.favorCaleb || 0),
+    darkness: Number(vars.darkness || 0)
+  };
+  const changes = [];
+  if (current.favorYizhou > window.lastStats.favorYizhou) changes.push('夏以昼好感度 +' + (current.favorYizhou - window.lastStats.favorYizhou));
+  if (current.favorCaleb > window.lastStats.favorCaleb) changes.push('Caleb +' + (current.favorCaleb - window.lastStats.favorCaleb));
+  if (current.darkness > window.lastStats.darkness) changes.push(getDarkLabel(current.darkness) + ' +' + (current.darkness - window.lastStats.darkness));
+  window.lastStats = current;
+  if (changes.length) showPhoneToast(changes.join(' / '), 'stat');
+});
+  </script>
+</body>
+</html>
