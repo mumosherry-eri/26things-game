@@ -55,6 +55,29 @@
         <div id="navigate-body" class="navigate-body"></div>
       </div>
     </div>
+    <div id="save-code-modal" class="save-code-modal">
+      <div class="stats-backdrop" onclick="closeSaveCodeModal()"></div>
+      <div class="save-code-card" role="dialog" aria-modal="true" aria-label="存档码">
+        <div class="stats-head"><span>存档码</span><button class="stats-close" onclick="closeSaveCodeModal()" aria-label="关闭">×</button></div>
+        <div class="save-code-body">
+          <p>已保存到本地。复制下面的存档码，可以在其他设备或浏览器继续读取。</p>
+          <textarea id="save-code-output" class="save-code-textarea" readonly spellcheck="false"></textarea>
+          <button id="copy-save-code" class="save-code-action" type="button">复制存档码</button>
+        </div>
+      </div>
+    </div>
+    <div id="load-code-modal" class="load-code-modal">
+      <div class="stats-backdrop" onclick="closeLoadCodeModal()"></div>
+      <div class="save-code-card" role="dialog" aria-modal="true" aria-label="读取存档">
+        <div class="stats-head"><span>读取存档</span><button class="stats-close" onclick="closeLoadCodeModal()" aria-label="关闭">×</button></div>
+        <div class="save-code-body">
+          <button id="load-local-save" class="save-code-action" type="button">读取本地存档</button>
+          <label class="save-code-label" for="load-code-input">粘贴存档码</label>
+          <textarea id="load-code-input" class="save-code-textarea" spellcheck="false" placeholder="26TY-..."></textarea>
+          <button id="import-save-code" class="save-code-action" type="button">读取存档码</button>
+        </div>
+      </div>
+    </div>
     <div id="phone-archive-modal" class="phone-archive-modal">
       <div class="stats-backdrop" onclick="closePhoneArchive()"></div>
       <div class="phone-archive-card" role="dialog" aria-modal="true" aria-label="手机记录">

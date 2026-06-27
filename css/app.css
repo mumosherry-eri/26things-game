@@ -2109,7 +2109,9 @@ a.link-internal:hover,
 .stats-modal.open,
 .memo-modal.open,
 .navigate-modal.open,
-.phone-archive-modal.open {
+.phone-archive-modal.open,
+.save-code-modal.open,
+.load-code-modal.open {
   display: block;
 }
 
@@ -2120,6 +2122,14 @@ a.link-internal:hover,
   z-index: 10010;
 }
 
+.save-code-modal,
+.load-code-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 10020;
+}
+
 .stats-backdrop {
   background: rgba(4, 3, 8, .66);
   backdrop-filter: blur(10px);
@@ -2128,7 +2138,8 @@ a.link-internal:hover,
 .stats-card,
 .memo-card,
 .navigate-card,
-.phone-archive-card {
+.phone-archive-card,
+.save-code-card {
   width: min(420px, calc(100vw - 24px));
   max-height: calc(100svh - 32px);
   border-radius: 28px;
@@ -2137,6 +2148,68 @@ a.link-internal:hover,
     linear-gradient(180deg, rgba(25, 20, 32, .98), rgba(8, 7, 13, .98));
   color: var(--app-text);
   box-shadow: 0 28px 72px rgba(0,0,0,.58);
+}
+
+.save-code-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+}
+
+.save-code-body {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  color: var(--app-text);
+}
+
+.save-code-body p {
+  margin: 0;
+  color: var(--app-muted);
+  line-height: 1.6;
+}
+
+.save-code-label {
+  color: rgba(255,255,255,.82);
+  font-weight: 800;
+}
+
+.save-code-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 132px;
+  max-height: min(260px, 34svh);
+  resize: vertical;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 16px;
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  font: 12px/1.55 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  overflow-wrap: anywhere;
+}
+
+.save-code-textarea:focus {
+  outline: 2px solid rgba(88,216,235,.42);
+  border-color: rgba(88,216,235,.64);
+}
+
+.save-code-action {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+  color: #fff;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.save-code-action:hover {
+  filter: brightness(1.08);
 }
 
 .phone-archive-card {

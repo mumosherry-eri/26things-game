@@ -1,6 +1,7 @@
 const STORY = window.STORY_DATA;
 const START_PASSAGE = window.STORY_START;
 const SAVE_KEY = "twenty-six-things-save-v1";
+const SAVE_CODE_PREFIX = "26TY-";
 const Temp = {};
 const eventBus = new EventTarget();
 const CATALOG_CHAPTERS = window.CATALOG_CHAPTERS || [];
@@ -373,6 +374,57 @@ function getCatalogSaveData() {
   };
 }
 
+function createSavePayload() {
+  return {
+    version: 2,
+    savedAt: new Date().toISOString(),
+    passage: State.passage,
+    variables: cloneData(State.variables),
+    memoEntries: [...(window.memoEntries || [])],
+    catalog: getCatalogSaveData(),
+    phoneArchive: window.getPhoneArchiveSave ? window.getPhoneArchiveSave() : undefined
+  };
+}
+
+function encodeSaveCode(payload) {
+  const json = JSON.stringify(payload);
+  const bytes = new TextEncoder().encode(json);
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.slice(i, i + chunkSize));
+  }
+  return SAVE_CODE_PREFIX + btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function decodeSaveCode(code) {
+  const trimmed = String(code || "").trim();
+  if (!trimmed.startsWith(SAVE_CODE_PREFIX)) throw new Error("bad-prefix");
+  let body = trimmed.slice(SAVE_CODE_PREFIX.length).replace(/-/g, "+").replace(/_/g, "/");
+  body += "=".repeat((4 - (body.length % 4)) % 4);
+  const binary = atob(body);
+  const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+  const payload = JSON.parse(new TextDecoder().decode(bytes));
+  if (!payload || typeof payload !== "object") throw new Error("bad-payload");
+  if (!payload.passage || typeof payload.passage !== "string") throw new Error("bad-passage");
+  return payload;
+}
+
+function applySavePayload(save) {
+  const target = STORY[save.passage] == null ? START_PASSAGE : save.passage;
+  State.variables = save.variables && typeof save.variables === "object" ? cloneData(save.variables) : {};
+  window.memoEntries = Array.isArray(save.memoEntries) ? [...save.memoEntries] : [];
+  if (window.setPhoneArchiveData) window.setPhoneArchiveData(save.phoneArchive || {});
+  normalizeCatalogState({ ...save, passage: target });
+  State.history = [];
+  Engine.play(target, { replace: true });
+  return target;
+}
+
+function persistSavePayload(save) {
+  localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+}
+
 function restoreCatalogChapter(chapterId) {
   const chapter = CATALOG_CHAPTERS.find(item => item.id === chapterId);
   if (!chapter || !catalogState.unlockedChapters.includes(chapterId)) return;
@@ -429,29 +481,83 @@ window.Engine = {
 };
 
 function saveGame() {
-  localStorage.setItem(SAVE_KEY, JSON.stringify({
-    passage: State.passage,
-    variables: State.variables,
-    memoEntries: window.memoEntries || [],
-    catalog: getCatalogSaveData(),
-    phoneArchive: window.getPhoneArchiveSave ? window.getPhoneArchiveSave() : undefined
-  }));
+  const save = createSavePayload();
+  persistSavePayload(save);
+  openSaveCodeModal(encodeSaveCode(save));
   showPhoneToast("已保存", "stat");
 }
 
 function loadGame() {
+  openLoadCodeModal();
+}
+
+function loadLocalGame() {
   const raw = localStorage.getItem(SAVE_KEY);
   if (!raw) {
     showPhoneToast("没有可读取的存档", "notice");
     return;
   }
-  const save = JSON.parse(raw);
-  State.variables = save.variables || {};
-  window.memoEntries = save.memoEntries || [];
-  if (window.setPhoneArchiveData) window.setPhoneArchiveData(save.phoneArchive || {});
-  normalizeCatalogState(save);
-  Engine.play(save.passage || START_PASSAGE, { replace: true });
-  showPhoneToast("已读取", "stat");
+  try {
+    const save = JSON.parse(raw);
+    applySavePayload(save);
+    closeLoadCodeModal();
+    showPhoneToast("已读取", "stat");
+  } catch (err) {
+    console.error(err);
+    showPhoneToast("本地存档读取失败", "notice");
+  }
+}
+
+function importSaveCode() {
+  const input = document.getElementById("load-code-input");
+  try {
+    const save = decodeSaveCode(input?.value || "");
+    persistSavePayload(save);
+    const target = applySavePayload(save);
+    closeLoadCodeModal();
+    showPhoneToast(STORY[save.passage] == null && target === START_PASSAGE ? "存档入口不存在，已回到开始" : "已读取存档码", "stat");
+  } catch (err) {
+    console.error(err);
+    showPhoneToast("存档码无效", "notice");
+  }
+}
+
+function openSaveCodeModal(code) {
+  const modal = document.getElementById("save-code-modal");
+  const output = document.getElementById("save-code-output");
+  if (!modal || !output) return;
+  output.value = code;
+  modal.classList.add("open");
+  output.focus();
+  output.select();
+}
+
+function openLoadCodeModal() {
+  const modal = document.getElementById("load-code-modal");
+  if (!modal) return;
+  modal.classList.add("open");
+  document.getElementById("load-code-input")?.focus();
+}
+
+function closeSaveCodeModal() {
+  document.getElementById("save-code-modal")?.classList.remove("open");
+}
+
+function closeLoadCodeModal() {
+  document.getElementById("load-code-modal")?.classList.remove("open");
+}
+
+async function copySaveCode() {
+  const output = document.getElementById("save-code-output");
+  if (!output?.value) return;
+  try {
+    await navigator.clipboard.writeText(output.value);
+    showPhoneToast("存档码已复制", "stat");
+  } catch (err) {
+    output.focus();
+    output.select();
+    showPhoneToast("请手动复制存档码", "notice");
+  }
 }
 
 function toggleGameMenu(force) {
@@ -462,6 +568,10 @@ function toggleGameMenu(force) {
 
 window.saveGame = saveGame;
 window.loadGame = loadGame;
+window.loadLocalGame = loadLocalGame;
+window.importSaveCode = importSaveCode;
+window.closeSaveCodeModal = closeSaveCodeModal;
+window.closeLoadCodeModal = closeLoadCodeModal;
 window.toggleGameMenu = toggleGameMenu;
 window.restoreCatalogChapter = restoreCatalogChapter;
 
@@ -528,6 +638,13 @@ document.addEventListener("click", ev => {
   }
 });
 
+document.addEventListener("keydown", ev => {
+  if (ev.key === "Escape") {
+    closeSaveCodeModal();
+    closeLoadCodeModal();
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("toolbar-continue").addEventListener("click", () => {
     if (toolbarContinueTarget) Engine.play(toolbarContinueTarget);
@@ -542,6 +659,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("menu-save").addEventListener("click", () => { toggleGameMenu(false); saveGame(); });
   document.getElementById("menu-load").addEventListener("click", () => { toggleGameMenu(false); loadGame(); });
   document.getElementById("menu-restart").addEventListener("click", () => { toggleGameMenu(false); Engine.restart(); });
+  document.getElementById("copy-save-code")?.addEventListener("click", copySaveCode);
+  document.getElementById("load-local-save")?.addEventListener("click", loadLocalGame);
+  document.getElementById("import-save-code")?.addEventListener("click", importSaveCode);
   normalizeCatalogState({ passage: START_PASSAGE });
   Engine.play(START_PASSAGE, { replace: true });
 });
