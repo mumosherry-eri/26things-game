@@ -35,5 +35,12 @@ window.CATALOG_CHAPTERS = [
     entry: "Drown-1",
     prefixes: ["Drown-"],
     defaults: { variables: { favorYizhou: 3, favorCaleb: 10, darkness: 8, path: "casual", liveHabit: "frontrow", calebAskedToMeet: true, calebInviteTone: "direct" }, memoEntries: [] }
+  },
+  {
+    id: "echo",
+    title: "第五章 Echo",
+    entry: "Echo-1",
+    prefixes: ["Echo-"],
+    defaults: { variables: { favorYizhou: 3, favorCaleb: 10, darkness: 8, path: "casual", liveHabit: "frontrow", calebAskedToMeet: true, calebInviteTone: "direct", drownYizhouFollowed: true, drownLotteryReposted: true, drownYizhouAccountSeen: true, drownYizhouPostSeen: true }, memoEntries: [] }
   }
 ];

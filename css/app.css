@@ -2599,3 +2599,86 @@ a.link-internal.is-toolbar-proxied,
     height: min(690px, calc(100svh - 30px));
   }
 }
+
+/* === v4: Echo chapter notification and sticker states === */
+.echo-alert-phone {
+  overflow: hidden;
+}
+
+.echo-notification-rain {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(88,216,235,.16), transparent 32%),
+    linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+}
+
+.echo-count-badge {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 8px;
+  display: grid;
+  place-items: center;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #ff5f7e, #ff9862);
+  color: #fff;
+  font-size: 34px;
+  font-weight: 900;
+  box-shadow: 0 18px 44px rgba(255,95,126,.28);
+  animation: echoPulse .9s ease-in-out infinite alternate;
+}
+
+.echo-notice {
+  padding: 11px 13px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 18px;
+  background: rgba(255,255,255,.09);
+  color: rgba(255,255,255,.9);
+  font-size: 13px;
+  line-height: 1.45;
+  transform: translateY(-8px);
+  opacity: 0;
+  animation: echoNoticeDrop .52s ease forwards;
+}
+
+.echo-notice:nth-child(3) { animation-delay: .08s; }
+.echo-notice:nth-child(4) { animation-delay: .16s; }
+.echo-notice:nth-child(5) { animation-delay: .24s; }
+.echo-notice:nth-child(6) { animation-delay: .32s; }
+
+@keyframes echoPulse {
+  from { transform: scale(.96); filter: brightness(.96); }
+  to { transform: scale(1.04); filter: brightness(1.08); }
+}
+
+@keyframes echoNoticeDrop {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.phone-shell .msg.sticker-msg {
+  width: 132px;
+  min-height: 104px;
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  border: 1px dashed rgba(255,255,255,.24);
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255,255,255,.22), transparent 36%),
+    linear-gradient(135deg, rgba(255,152,98,.2), rgba(154,114,255,.18));
+  color: rgba(255,255,255,.88);
+  font-weight: 800;
+  text-align: center;
+}
+
+.phone-shell .msg.sticker-msg span {
+  display: inline-grid;
+  place-items: center;
+  width: 86px;
+  aspect-ratio: 1 / 1;
+  border-radius: 26px;
+  background: rgba(255,255,255,.1);
+}

@@ -50,10 +50,13 @@ window.renderPhoneChat = function(config){
   function appendMessage(msg){
     typing.classList.remove('show');
     const div = document.createElement('div');
+    const isStickerPlaceholder = msg.type === 'stickerPlaceholder';
     const isQr = msg.text === '【二维码图片】';
     const isImagePlaceholder = isQr || msg.text === '【图片】';
-    div.className = 'msg ' + msg.who + (isImagePlaceholder || msg.image ? ' image-msg' : '') + (isQr ? ' qr-image-msg has-real-image' : '') + (msg.image ? ' has-real-image' : '');
-    if (msg.image) {
+    div.className = 'msg ' + msg.who + (isImagePlaceholder || msg.image ? ' image-msg' : '') + (isStickerPlaceholder ? ' sticker-msg' : '') + (isQr ? ' qr-image-msg has-real-image' : '') + (msg.image ? ' has-real-image' : '');
+    if (isStickerPlaceholder) {
+      div.innerHTML = '<span>' + escapeHTML(msg.title || msg.text || '表情') + '</span>';
+    } else if (msg.image) {
       const img = document.createElement('img');
       img.alt = msg.text || '';
       img.src = msg.image;
