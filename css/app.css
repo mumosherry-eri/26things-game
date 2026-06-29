@@ -2650,6 +2650,34 @@ a.link-internal.is-toolbar-proxied,
 .echo-notice:nth-child(5) { animation-delay: .24s; }
 .echo-notice:nth-child(6) { animation-delay: .32s; }
 
+body.echo-screen-buzz #game-shell {
+  animation: echoScreenBuzz .13s linear infinite;
+}
+
+body.echo-screen-buzz #passages {
+  box-shadow:
+    0 24px 68px rgba(0,0,0,.44),
+    0 0 32px rgba(255,95,126,.22),
+    inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+body.echo-screen-buzz #passages::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10012;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,95,126,.12), transparent 28%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.045) 0 1px, transparent 1px 5px);
+  opacity: .55;
+  animation: echoBuzzScan .28s steps(2, end) infinite;
+}
+
+body.echo-screen-buzz .bottom-toolbar {
+  animation: echoToolbarBuzz .11s linear infinite reverse;
+}
+
 @keyframes echoPulse {
   from { transform: scale(.96); filter: brightness(.96); }
   to { transform: scale(1.04); filter: brightness(1.08); }
@@ -2657,6 +2685,28 @@ a.link-internal.is-toolbar-proxied,
 
 @keyframes echoNoticeDrop {
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes echoScreenBuzz {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  20% { transform: translateX(-2px) translateY(1px); }
+  40% { transform: translateX(2px) translateY(-1px); }
+  60% { transform: translateX(-1px) translateY(-1px); }
+  80% { transform: translateX(1px) translateY(1px); }
+}
+
+@keyframes echoToolbarBuzz {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  20% { transform: translateX(calc(-50% - 2px)) translateY(1px); }
+  40% { transform: translateX(calc(-50% + 2px)) translateY(-1px); }
+  60% { transform: translateX(calc(-50% - 1px)) translateY(-1px); }
+  80% { transform: translateX(calc(-50% + 1px)) translateY(1px); }
+}
+
+@keyframes echoBuzzScan {
+  0% { transform: translateY(-2px); opacity: .42; }
+  50% { transform: translateY(2px); opacity: .62; }
+  100% { transform: translateY(0); opacity: .48; }
 }
 
 .phone-shell .msg.sticker-msg {

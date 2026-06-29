@@ -71,7 +71,16 @@ Object.assign(window.STORY_DATA, {
 
 <div class="phone-complete phone-complete-outside">[[继续->Echo-4]]</div>`,
 
-  "Echo-4": `啊？
+  "Echo-4": `<script>
+(function(){
+  document.body.classList.add('echo-screen-buzz');
+  document.addEventListener('passageinit', function clearEchoBuzz(){
+    document.body.classList.remove('echo-screen-buzz');
+  }, { once: true });
+})();
+</script>
+
+啊？
 
 啊？？？？？
 
