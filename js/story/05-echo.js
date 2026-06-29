@@ -12,7 +12,15 @@ window.STORY_DATA = window.STORY_DATA || {};
 Object.assign(window.STORY_DATA, {
   "Echo-1": `<<run ensureEchoChapterState()>>
 <<set $echoPrizeNoticeSeen = true>>
-<div class="phone-shell echo-alert-phone buzz">
+<script>
+(function(){
+  document.body.classList.add('echo-phone-buzzing');
+  document.addEventListener('passageinit', function clearEchoPhoneBuzz(){
+    document.body.classList.remove('echo-phone-buzzing');
+  }, { once: true });
+})();
+</script>
+<div class="phone-shell echo-alert-phone">
   <div class="phone-status"><span>20:03</span><span>5G  66%</span></div>
   <div class="phone-titlebar">
     <span class="phone-back">‹</span>
@@ -43,6 +51,14 @@ Object.assign(window.STORY_DATA, {
 
   "Echo-3": `<<run ensureEchoChapterState()>>
 <<set $echoOfficialWinSeen = true>>
+<script>
+(function(){
+  document.body.classList.add('echo-phone-buzzing');
+  document.addEventListener('passageinit', function clearEchoPhoneBuzz(){
+    document.body.classList.remove('echo-phone-buzzing');
+  }, { once: true });
+})();
+</script>
 <div id="echo3-sns" class="sns-phone phone-shell"></div>
 <<done>><<run renderSnsApp({
   id: 'echo3-sns',
@@ -71,16 +87,7 @@ Object.assign(window.STORY_DATA, {
 
 <div class="phone-complete phone-complete-outside">[[继续->Echo-4]]</div>`,
 
-  "Echo-4": `<script>
-(function(){
-  document.body.classList.add('echo-screen-buzz');
-  document.addEventListener('passageinit', function clearEchoBuzz(){
-    document.body.classList.remove('echo-screen-buzz');
-  }, { once: true });
-})();
-</script>
-
-啊？
+  "Echo-4": `啊？
 
 啊？？？？？
 
