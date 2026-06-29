@@ -28,18 +28,22 @@ window.showCalebEyeFlash = function(done){
   };
   const sources = [
     'assets/caleb-eye-strip.jpg',
+    'https://y.z.wiki/autoupload/DQ5HVcXi_t9c0QFeBBAXZ9iO_OyvX7mIgxFBfDMDErs/20260629/gIwA/974X357/Image_1782703350439_38.jpg/webp',
     'file:///E:/codex/openclaw/assets/caleb-eye-strip.jpg'
   ];
-  let sourceIndex = 0;
-  const img = new Image();
-  img.onload = function(){
+  let settled = false;
+  let failedCount = 0;
+
+  function show(src){
+    if (settled) return;
+    settled = true;
     const overlay = document.createElement('div');
     overlay.className = 'caleb-eye-flash';
     if (State.variables.calebEyeFlashBlackout) {
       overlay.classList.add('blackout');
     }
     const strip = document.createElement('img');
-    strip.src = img.src;
+    strip.src = src;
     strip.alt = '';
     overlay.appendChild(strip);
     document.body.appendChild(overlay);
@@ -50,16 +54,23 @@ window.showCalebEyeFlash = function(done){
       overlay.remove();
       finish();
     }, 1380);
-  };
-  img.onerror = function(){
-    sourceIndex += 1;
-    if (sourceIndex >= sources.length) {
-      finish();
-      return;
-    }
-    img.src = sources[sourceIndex];
-  };
-  img.src = sources[sourceIndex];
+  }
+
+  sources.forEach(function(src){
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = function(){
+      show(src);
+    };
+    img.onerror = function(){
+      failedCount += 1;
+      if (!settled && failedCount >= sources.length) {
+        State.variables.calebEyeFlashSeen = true;
+        finish();
+      }
+    };
+    img.src = src;
+  });
 };
 
 window.renderCalebMeetChat = function(config){
