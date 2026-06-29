@@ -152,9 +152,57 @@ Object.assign(window.STORY_DATA, {
 
 “这里还挺小的。”他眼神扫过这个窄小的房间。“我们每场演出前后都在这里待一会儿。”
 
-你也是这个时候才开始认真打量这个后台休息室。这里比你想象中还要小不少，推开门时甚至需要侧身才不至于碰到门后的乐器箱。昏黄的灯光下，靠墙摆着一张略显旧的皮沙发，坐垫中央处已经有了凹陷。旁边是一排临时搭起的服装架，挂着几件还留着褶痕的演出服。沙发前的茶几上，随意地散放着几只喝到一半或空掉的水瓶，还有一些看不出是谁的私人物品随意地丢在桌面上。靠另一面墙摆着化妆镜，镜框上贴着几张褪色的贴纸，台面上有细碎的粉末和几支用过的眼线笔。
+你也是这个时候才开始认真打量这个后台休息室。
 
-[[继续->Echo-12]]`,
+<section id="echo11-room" class="echo-room-explore" aria-label="后台休息室观察">
+  <div class="echo-room-stage">
+    <button type="button" data-echo-room="case">乐器箱</button>
+    <button type="button" data-echo-room="sofa">皮沙发</button>
+    <button type="button" data-echo-room="wardrobe">服装架</button>
+    <button type="button" data-echo-room="table">茶几水瓶</button>
+    <button type="button" data-echo-room="mirror">化妆镜</button>
+  </div>
+  <div id="echo11-room-detail" class="echo-room-detail">昏黄的灯光压得很低。你可以先看看周围。</div>
+  <div class="echo-room-progress"><span id="echo11-room-count">0</span> / 5</div>
+</section>
+<div id="echo11-continue" class="phone-complete phone-complete-outside"></div>
+
+<script>
+(function(){
+  var detail = document.getElementById('echo11-room-detail');
+  var count = document.getElementById('echo11-room-count');
+  var complete = document.getElementById('echo11-continue');
+  var seen = new Set();
+  var details = {
+    case: '这里比你想象中还要小不少，推开门时甚至需要侧身才不至于碰到门后的乐器箱。',
+    sofa: '昏黄的灯光下，靠墙摆着一张略显旧的皮沙发，坐垫中央处已经有了凹陷。',
+    wardrobe: '旁边是一排临时搭起的服装架，挂着几件还留着褶痕的演出服。',
+    table: '沙发前的茶几上，随意地散放着几只喝到一半或空掉的水瓶，还有一些看不出是谁的私人物品随意地丢在桌面上。',
+    mirror: '靠另一面墙摆着化妆镜，镜框上贴着几张褪色的贴纸，台面上有细碎的粉末和几支用过的眼线笔。'
+  };
+  document.querySelectorAll('#echo11-room [data-echo-room]').forEach(function(button){
+    button.addEventListener('click', function(){
+      var key = button.getAttribute('data-echo-room');
+      seen.add(key);
+      button.classList.add('seen');
+      detail.textContent = details[key] || '';
+      count.textContent = String(seen.size);
+      if (seen.size >= 3 && complete && !complete.dataset.ready) {
+        complete.dataset.ready = '1';
+        var link = document.createElement('a');
+        link.className = 'link-internal phone-continue';
+        link.href = 'javascript:void(0)';
+        link.dataset.passage = 'Echo-12';
+        link.textContent = '继续';
+        link.addEventListener('click', function(){ Engine.play('Echo-12'); });
+        complete.appendChild(link);
+        complete.classList.add('show');
+        if (window.syncToolbarContinue) window.syncToolbarContinue();
+      }
+    });
+  });
+})();
+</script>`,
 
   "Echo-12": `夏以昼轻轻用脚尖推了下地上的空瓶子，看向你：“这里虽然比较小，但是我觉得我们之后会站上更大的舞台。”简单介绍完，他似乎也没了话题，空气里弥漫着短暂的沉默，你只能听到自己的心跳震得耳膜响个不停。
 
@@ -176,7 +224,10 @@ Object.assign(window.STORY_DATA, {
 
 [[继续->Echo-14]]`,
 
-  "Echo-14": `依旧是那个昏暗的房间。夏以昼坐在床上，面前墙壁的投影是女孩社媒账号上的自拍，占据了整个墙面。他低低地喘息着，左手捏着一个飞机形状的发夹，右手握着尺寸傲人的阴茎，上下撸动着。
+  "Echo-14": `<section class="echo-signal-scene">
+<div class="echo-static-layer" aria-hidden="true"></div>
+<div class="echo-signal-text">
+依旧是那个昏暗的房间。夏以昼坐在床上，面前墙壁的投影是女孩社媒账号上的自拍，占据了整个墙面。他低低地喘息着，左手捏着一个飞机形状的发夹，右手握着尺寸傲人的阴茎，上下撸动着。
 
 她好小……看起来软软的……凑近就是甜甜的香味。
 
@@ -186,5 +237,7 @@ Object.assign(window.STORY_DATA, {
 
 过度的快感让夏以昼的眼神短暂失焦，最后短暂定格在面前墙壁的女孩的笑脸上。
 
-第五章 Echo 线待续。`
+第五章 Echo 线待续。
+</div>
+</section>`
 });
