@@ -225,8 +225,19 @@ Object.assign(window.STORY_DATA, {
 [[继续->Echo-14]]`,
 
   "Echo-14": `<section class="echo-signal-scene">
+<svg class="echo-distortion-svg" aria-hidden="true" focusable="false">
+  <filter id="echoTextWarp">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.22" numOctaves="2" seed="8" result="noise">
+      <animate attributeName="baseFrequency" values="0.012 0.22;0.035 0.34;0.018 0.26;0.052 0.18;0.012 0.22" dur="1.05s" repeatCount="indefinite" />
+      <animate attributeName="seed" values="8;13;21;34;8" dur="1.05s" repeatCount="indefinite" />
+    </feTurbulence>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G">
+      <animate attributeName="scale" values="2;9;4;13;3" dur="1.05s" repeatCount="indefinite" />
+    </feDisplacementMap>
+  </filter>
+</svg>
 <div class="echo-static-layer" aria-hidden="true"></div>
-<div class="echo-signal-text">
+<div class="echo-signal-text" data-echo-glitch>
 依旧是那个昏暗的房间。夏以昼坐在床上，面前墙壁的投影是女孩社媒账号上的自拍，占据了整个墙面。他低低地喘息着，左手捏着一个飞机形状的发夹，右手握着尺寸傲人的阴茎，上下撸动着。
 
 她好小……看起来软软的……凑近就是甜甜的香味。
@@ -239,5 +250,11 @@ Object.assign(window.STORY_DATA, {
 
 第五章 Echo 线待续。
 </div>
-</section>`
+</section>
+<script>
+(function(){
+  var node = document.querySelector('.echo-signal-text[data-echo-glitch]');
+  if (node) node.dataset.glitchText = node.textContent.trim();
+})();
+</script>`
 });

@@ -2750,12 +2750,20 @@ a.link-internal.is-toolbar-proxied,
   transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
-.echo-signal-scene:hover {
+.echo-signal-scene:hover,
+.echo-signal-scene:active {
   border-color: rgba(255,152,98,.46);
-  box-shadow: 0 0 34px rgba(255,152,98,.18), inset 0 0 38px rgba(255,152,98,.08);
+  box-shadow: 0 0 44px rgba(255,152,98,.28), inset 0 0 54px rgba(255,152,98,.12);
   background:
-    radial-gradient(circle at 72% 18%, rgba(255,152,98,.22), transparent 36%),
+    radial-gradient(circle at 72% 18%, rgba(255,152,98,.32), transparent 38%),
     linear-gradient(180deg, rgba(12,8,13,.78), rgba(25,13,18,.94));
+}
+
+.echo-distortion-svg {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .echo-static-layer {
@@ -2763,24 +2771,85 @@ a.link-internal.is-toolbar-proxied,
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: .16;
+  opacity: .28;
   background:
-    repeating-linear-gradient(0deg, rgba(255,255,255,.16) 0 1px, transparent 1px 4px),
-    repeating-radial-gradient(circle at 25% 40%, rgba(255,255,255,.14) 0 1px, transparent 1px 7px);
+    linear-gradient(90deg, transparent 0 36%, rgba(255,152,98,.16) 38%, transparent 43%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.2) 0 1px, transparent 1px 4px),
+    repeating-radial-gradient(circle at 25% 40%, rgba(255,255,255,.16) 0 1px, transparent 1px 7px);
   mix-blend-mode: screen;
-  animation: echoStaticDrift .7s steps(2, end) infinite;
+  animation: echoStaticDrift .38s steps(2, end) infinite;
 }
 
 .echo-signal-text {
   position: relative;
   z-index: 1;
-  text-shadow: 0 0 14px rgba(255,152,98,.08);
+  filter: url("#echoTextWarp");
+  animation: echoTextSkew 1.35s steps(2, end) infinite;
+  text-shadow:
+    2px 0 rgba(255,152,98,.24),
+    -2px 0 rgba(154,114,255,.18),
+    0 0 14px rgba(255,152,98,.12);
+}
+
+.echo-signal-text::before,
+.echo-signal-text::after {
+  content: attr(data-glitch-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  white-space: pre-wrap;
+  overflow: hidden;
+  opacity: .34;
+}
+
+.echo-signal-text::before {
+  color: rgba(255,152,98,.78);
+  transform: translate(3px, 0);
+  clip-path: inset(8% 0 64% 0);
+  animation: echoSliceWarm .82s steps(2, end) infinite;
+}
+
+.echo-signal-text::after {
+  color: rgba(154,114,255,.62);
+  transform: translate(-3px, 1px);
+  clip-path: inset(48% 0 22% 0);
+  animation: echoSliceCold .64s steps(2, end) infinite;
+}
+
+.echo-signal-scene:hover .echo-signal-text,
+.echo-signal-scene:active .echo-signal-text {
+  animation-duration: .72s;
+  text-shadow:
+    4px 0 rgba(255,152,98,.34),
+    -4px 0 rgba(154,114,255,.24),
+    0 0 18px rgba(255,152,98,.22);
 }
 
 @keyframes echoStaticDrift {
-  0% { transform: translate(0, 0); opacity: .12; }
-  50% { transform: translate(-1px, 1px); opacity: .18; }
-  100% { transform: translate(1px, -1px); opacity: .14; }
+  0% { transform: translate(0, 0); opacity: .18; }
+  50% { transform: translate(-3px, 2px); opacity: .34; }
+  100% { transform: translate(2px, -2px); opacity: .26; }
+}
+
+@keyframes echoTextSkew {
+  0%, 100% { transform: skewX(0deg) translateX(0); }
+  18% { transform: skewX(.7deg) translateX(1px); }
+  22% { transform: skewX(-1.2deg) translateX(-2px); }
+  48% { transform: skewX(.35deg) translateX(0); }
+  52% { transform: skewX(1.6deg) translateX(2px); }
+  56% { transform: skewX(-.8deg) translateX(-1px); }
+}
+
+@keyframes echoSliceWarm {
+  0%, 100% { clip-path: inset(7% 0 68% 0); transform: translate(2px, -1px); opacity: .22; }
+  35% { clip-path: inset(28% 0 45% 0); transform: translate(7px, 0); opacity: .46; }
+  64% { clip-path: inset(61% 0 12% 0); transform: translate(-3px, 1px); opacity: .28; }
+}
+
+@keyframes echoSliceCold {
+  0%, 100% { clip-path: inset(48% 0 22% 0); transform: translate(-3px, 1px); opacity: .2; }
+  44% { clip-path: inset(12% 0 70% 0); transform: translate(-8px, 0); opacity: .4; }
+  72% { clip-path: inset(74% 0 6% 0); transform: translate(4px, -1px); opacity: .25; }
 }
 
 @media (max-width: 420px) {
@@ -2790,5 +2859,10 @@ a.link-internal.is-toolbar-proxied,
 
   .echo-room-detail {
     min-height: 132px;
+  }
+
+  .echo-signal-text::before,
+  .echo-signal-text::after {
+    opacity: .26;
   }
 }
